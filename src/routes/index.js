@@ -1,0 +1,89 @@
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../components/auth/AuthContext';
+import Login from '../components/auth/Login';
+import Register from '../components/auth/Register';
+import BookList from '../components/books/BookList';
+import Layout from '../components/layout/Layout';
+import BookForm from '../components/books/BookForm';
+import BookDetail from '../components/books/BookDetail';
+import LoanForm from '../components/loans/LoanForm';
+import LoanList from '../components/loans/LoanList';
+import AdminDashboard from '../components/admin/AdminDashboard';
+import ChatWindow from '../components/chat/ChatWindow';
+import UserProfile from '../components/profile/UserProfile';
+// Importaremos más componentes cuando los creemos
+
+const PrivateRoute = ({ children }) => {
+    const { user } = useAuth();
+    return user ? <Layout>{children}</Layout> : <Navigate to="/login" />;
+};
+
+// Creamos un HOC para rutas de admin
+const AdminRoute = ({ children }) => {
+    const { user } = useAuth();
+    return user?.rol === 'admin' ? <Layout>{children}</Layout> : <Navigate to="/" />;
+};
+
+const AppRoutes = () => {
+    const { user } = useAuth();
+
+    return (
+        <Routes>
+            <Route path="/login" element={
+                !user ? <Login /> : <Navigate to="/" />
+            } />
+            <Route path="/register" element={
+                !user ? <Register /> : <Navigate to="/" />
+            } />
+            <Route path="/" element={
+                <PrivateRoute>
+                    <BookList />
+                </PrivateRoute>
+            } />
+            <Route path="/books/new" element={
+                <PrivateRoute>
+                    <BookForm mode="create" />
+                </PrivateRoute>
+            } />
+            <Route path="/books/edit/:id" element={
+                <PrivateRoute>
+                    <BookForm mode="edit" />
+                </PrivateRoute>
+            } />
+            <Route path="/books/:id" element={
+                <PrivateRoute>
+                    <BookDetail />
+                </PrivateRoute>
+            } />
+            <Route path="/loans" element={
+                <PrivateRoute>
+                    <LoanList />
+                </PrivateRoute>
+            } />
+            <Route path="/loans/new/:bookId" element={
+                <PrivateRoute>
+                    <LoanForm />
+                </PrivateRoute>
+            } />
+            <Route path="/admin" element={
+                <AdminRoute>
+                    <AdminDashboard />
+                </AdminRoute>
+            } />
+            <Route path="/chat" element={
+                <PrivateRoute>
+                    <ChatWindow />
+                </PrivateRoute>
+            } />
+            <Route path="/profile" element={
+                <PrivateRoute>
+                    <UserProfile />
+                </PrivateRoute>
+            } />
+            {/* Agregaremos más rutas cuando creemos los componentes */}
+        </Routes>
+    );
+};
+
+export default AppRoutes; 
