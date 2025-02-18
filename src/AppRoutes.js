@@ -4,6 +4,7 @@ import Login from './screen/Login';
 import Register from './screen/Register';
 import ChatList from './screen/ChatList';
 import Chat from './screen/chat';
+import BookManagement from './screen/BookManagement';
 
 const AppRoutes = () => {
   const chats = [
@@ -16,6 +17,8 @@ const AppRoutes = () => {
       <Route path="/register" element={<Register onRegister={(u) => console.log(u)} />} />
       <Route path="/chats" element={<ChatList chats={chats} />} />
       <Route path="/chat/:id" element={<Chat chat={chats[0]} />} />
+      <Route path="/books/new" element={<BookManagement />} />
+      <Route path="/books/edit/:id" element={<BookManagement />} />
     </Routes>
   );
 };

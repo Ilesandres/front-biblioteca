@@ -16,7 +16,8 @@ import {
 import {
     ArrowBack,
     Book as BookIcon,
-    Star as StarIcon
+    Star as StarIcon,
+    Edit as EditIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
 import bookService from '../../services/book.service';
@@ -147,8 +148,16 @@ const BookDetail = () => {
                             >
                                 Escribir Reseña
                             </Button>
+                            {user?.role === 'admin' && (
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<EditIcon />}
+                                    onClick={() => navigate(`/books/edit/${id}`)}
+                                >
+                                    Editar Libro
+                                </Button>
+                            )}
                         </Box>
-
                         <Box mt={3}>
                             <Typography variant="subtitle2" color="text.secondary">
                                 Fecha de publicación: {new Date(book.fechaPublicacion).toLocaleDateString()}
@@ -184,4 +193,4 @@ const BookDetail = () => {
     );
 };
 
-export default BookDetail; 
+export default BookDetail;

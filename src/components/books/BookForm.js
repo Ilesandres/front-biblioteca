@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import {
@@ -36,36 +36,87 @@ const validationSchema = Yup.object({
         .min(1, 'Debe haber al menos 1 copia')
 });
 
-const BookForm = ({ initialValues, mode = 'create' }) => {
+const BookForm = ({ mode = 'create', initialData = null }) => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [error, setError] = useState('');
-    const [previewUrl, setPreviewUrl] = useState(initialValues?.portada || '');
+    const [loading, setLoading] = useState(false);
+    const [previewUrl, setPreviewUrl] = useState('');
 
     const formik = useFormik({
         initialValues: {
-            titulo: '',
-            autor: '',
-            descripcion: '',
-            genero: '',
-            fechaPublicacion: '',
-            copias: 1,
-            portada: null,
-            ...initialValues
+            titulo: initialData?.titulo || '',
+            autor: initialData?.autor || '',
+            descripcion: initialData?.descripcion || '',
+            genero: initialData?.genero || '',
+            fechaPublicacion: initialData?.fechaPublicacion ? new Date(initialData.fechaPublicacion).toISOString().split('T')[0] : '',
+            copias: initialData?.copias || 1,
+            portada: null
         },
         validationSchema,
+        enableReinitialize: true,
         onSubmit: async (values) => {
             try {
+                const formData = new FormData();
+                Object.keys(values).forEach(key => {
+                    if (values[key] !== null) {
+                        formData.append(key, values[key]);
+                    }
+                });
+
                 if (mode === 'create') {
-                    await bookService.create(values);
+                    await bookService.create(formData);
                 } else {
-                    await bookService.update(initialValues.id, values);
+                    await bookService.update(id, formData);
                 }
-                navigate('/');
+
+                navigate('/books');
             } catch (err) {
                 setError(err.response?.data?.message || 'Error al guardar el libro');
             }
-        }
+        },
     });
+
+    useEffect(() => {
+        if (initialData?.portada) {
+            setPreviewUrl(`/uploads/${initialData.portada}`);
+        }
+    }, [initialData]);
+    useEffect(() => {
+        const loadBookData = async () => {
+            if (mode === 'edit' && id) {
+                setLoading(true);
+                try {
+                    const data = await bookService.getById(id);
+                    formik.setValues({
+                        titulo: data.titulo || '',
+                        autor: data.autor || '',
+                        descripcion: data.descripcion || '',
+                        genero: data.genero || '',
+                        fechaPublicacion: data.fechaPublicacion ? new Date(data.fechaPublicacion).toISOString().split('T')[0] : '',
+                        copias: data.copias || 1,
+                        portada: null
+                    });
+                    if (data.portada) {
+                        setPreviewUrl(`/uploads/${data.portada}`);
+                    }
+                } catch (err) {
+                    setError('Error al cargar los datos del libro');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+        loadBookData();
+    }, [id, mode]);
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <Typography>Cargando...</Typography>
+            </Box>
+        );
+    }
 
     const handleImageChange = (event) => {
         const file = event.target.files[0];
@@ -254,4 +305,4 @@ const BookForm = ({ initialValues, mode = 'create' }) => {
     );
 };
 
-export default BookForm; 
+export default BookForm;

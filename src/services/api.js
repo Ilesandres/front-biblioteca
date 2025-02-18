@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_URL = 'http://localhost:3005/api'; // Ensure this is correct
+const API_URL = 'http://localhost:3005/api'; // Updated port to match backend
 
 const api = axios.create({
     baseURL: API_URL,

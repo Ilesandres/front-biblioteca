@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Container,
@@ -35,11 +35,7 @@ const BookList = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        loadBooks();
-    }, [filters, pagination.page]);
-
-    const loadBooks = async () => {
+    const loadBooks = useCallback(async () => {
         try {
             setLoading(true);
             const response = await bookService.getAll({
@@ -61,7 +57,11 @@ const BookList = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [filters, pagination.page, pagination.limit]);
+
+    useEffect(() => {
+        loadBooks();
+    }, [loadBooks]);
 
     const handleFilterChange = (newFilters) => {
         setPagination(prev => ({ ...prev, page: 1 }));
@@ -155,4 +155,4 @@ const BookList = () => {
     );
 };
 
-export default BookList; 
+export default BookList;
