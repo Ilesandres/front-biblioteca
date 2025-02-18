@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3005/api';
+const API_URL = 'http://localhost:3005/api'; // Ensure this is correct
 
 const api = axios.create({
     baseURL: API_URL,
@@ -46,4 +46,4 @@ api.interceptors.response.use(
     }
 );
 
-export default api; 
+export default api;

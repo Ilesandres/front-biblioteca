@@ -23,7 +23,7 @@ api.interceptors.request.use(
 );
 export const login = async (email, password) => {
     try {
-        const response = await api.post('/users/login', { email, password });
+        const response = await api.post('/usuarios/login', { email, password });
         const { token, user } = response.data;
         
         localStorage.setItem('token', token);

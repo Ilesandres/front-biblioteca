@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../modules/api';
+import { useAuth } from '../components/auth/AuthContext';
 import '../index.css';
 
 const Login = () => {
@@ -9,6 +9,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -16,9 +17,9 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await login(email, password);
-            if (response.token) {
-                navigate('/chats', { replace: true });
+            const response = await login({ email, password });
+            if (!response.success) {
+                setError(response.message);
             }
         } catch (err) {
             setError(err.message || 'Error al iniciar sesión');

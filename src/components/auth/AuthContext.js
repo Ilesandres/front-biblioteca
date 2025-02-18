@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { initializeSocket, disconnectSocket } from '../../services/socket.service';
+import { decodeToken, validateToken } from '../../utils/tokenUtils';
 import api from '../../services/api';
 
 const AuthContext = createContext(null);
@@ -17,40 +18,83 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
         try {
             const token = localStorage.getItem('token');
-            if (token) {
+            const storedUser = localStorage.getItem('user');
+            
+            if (token && storedUser) {
+                if (!validateToken(token)) {
+                    throw new Error('Token is invalid or expired');
+                }
+                const parsedUser = JSON.parse(storedUser);
+                if (!validateUserData(parsedUser)) {
+                    throw new Error('Invalid stored user data');
+                }
+                setUser(parsedUser);
+                
+                // Verify token validity with backend
                 const response = await api.get('/usuarios/perfil');
-                setUser(response.data);
+                if (response.data) {
+                    if (!validateUserData(response.data)) {
+                        throw new Error('Invalid user data from server');
+                    }
+                    setUser(response.data);
+                    localStorage.setItem('user', JSON.stringify(response.data));
+                }
             }
         } catch (error) {
             console.error('Error checking auth:', error);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            setUser(null);
         } finally {
             setLoading(false);
         }
     };
 
+    const validateUserData = (userData) => {
+        if (!userData || typeof userData !== 'object') return false;
+        if (!userData.rol || typeof userData.rol !== 'string') return false;
+        if (!['admin', 'user'].includes(userData.rol)) return false;
+        if (!userData.email || typeof userData.email !== 'string') return false;
+        return true;
+    };
+
     const login = async (credentials) => {
         try {
-            const response = await api.post('/auth/login', credentials);
-            const { token, usuario } = response.data;
+            if (!credentials.email || !credentials.password) {
+                throw new Error('Email and password are required');
+            }
+
+            const response = await api.post('/usuarios/login', credentials);
+            const { token, user: userData } = response.data;
+            
+            if (!token) {
+                throw new Error('No token received from server');
+            }
+
+            if (!validateUserData(userData)) {
+                throw new Error('Invalid user data or role not defined');
+            }
             
             localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(usuario));
+            localStorage.setItem('user', JSON.stringify(userData));
             
-            setUser(usuario);
-            navigate('/');
+            setUser(userData);
+            navigate(userData.rol === 'admin' ? '/admin' : '/');
+            initializeSocket(token);
             return { success: true };
         } catch (error) {
             console.error('Login error:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
             return {
                 success: false,
-                message: error.response?.data?.message || 'Error al iniciar sesión'
+                message: error.response?.data?.message || error.message || 'Error al iniciar sesión'
             };
         }
     };
 
     const logout = () => {
+        disconnectSocket();
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
@@ -58,18 +102,42 @@ export const AuthProvider = ({ children }) => {
     };
 
     const updateUserData = (newData) => {
+        if (!validateUserData({ ...user, ...newData })) {
+            throw new Error('Invalid user data update');
+        }
         const updatedUser = { ...user, ...newData };
         setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
     };
 
     const register = async (userData) => {
-        const response = await api.post('/usuarios/registro', userData);
-        const { token, data: newUser } = response.data;
-        localStorage.setItem('token', token);
-        setUser(newUser);
-        initializeSocket(token);
-        return newUser;
+        try {
+            const response = await api.post('/usuarios/register', userData);
+            const { token, data: newUser } = response.data;
+            
+            if (!token) {
+                throw new Error('No token received from server');
+            }
+
+            if (!validateUserData(newUser)) {
+                throw new Error('Invalid user data or role not defined');
+            }
+            
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(newUser));
+            setUser(newUser);
+            initializeSocket(token);
+            navigate(newUser.rol === 'admin' ? '/admin' : '/');
+            return { success: true, user: newUser };
+        } catch (error) {
+            console.error('Register error:', error);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            return {
+                success: false,
+                message: error.response?.data?.message || error.message || 'Error al registrar usuario'
+            };
+        }
     };
 
     if (loading) {
@@ -77,7 +145,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updateUserData, register }}>
+        <AuthContext.Provider value={{ user, login, logout, updateUserData, register, loading }}>
             {children}
         </AuthContext.Provider>
     );
@@ -89,4 +157,4 @@ export const useAuth = () => {
         throw new Error('useAuth debe ser usado dentro de un AuthProvider');
     }
     return context;
-}; 
+};

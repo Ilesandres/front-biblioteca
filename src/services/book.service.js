@@ -14,10 +14,10 @@ const bookService = {
 
         const response = await api.get(`/libros?${queryParams}`);
         return {
-            data: response.data.data,
-            total: response.data.pagination.total,
-            page: response.data.pagination.page,
-            totalPages: response.data.pagination.pages
+            data: response.data?.data || [],
+            total: response.data?.pagination?.total || 0,
+            page: response.data?.pagination?.page || 1,
+            totalPages: response.data?.pagination?.pages || 1
         };
     },
 
@@ -73,4 +73,4 @@ const bookService = {
     }
 };
 
-export default bookService; 
+export default bookService;

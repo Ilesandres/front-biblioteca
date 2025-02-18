@@ -7,7 +7,10 @@ class SocketService {
     }
 
     connect() {
-        this.socket = io('http://localhost:3005');
+        this.socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000', {
+            withCredentials: true,
+            transports: ['websocket', 'polling']
+        });
 
         this.socket.on('connect', () => {
             console.log('Conectado al servidor de WebSocket');
@@ -77,4 +80,4 @@ class SocketService {
     }
 }
 
-export const socketService = new SocketService(); 
+export const socketService = new SocketService();
