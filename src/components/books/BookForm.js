@@ -107,17 +107,19 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 setLoading(true);
                 try {
                     const data = await bookService.getById(id);
+                    console.log(data);
+                    console.log(data.fechaPublicacion);
                     formik.setValues({
-                        titulo: data.titulo || '',
-                        autor: data.autor || '',
-                        descripcion: data.descripcion || '',
-                        genero: data.genero || '',
-                        fechaPublicacion: data.fechaPublicacion ? new Date(data.fechaPublicacion).toISOString().split('T')[0] : '',
-                        copias: data.copias || 1,
+                        titulo: data.data.titulo || '',
+                        autor: data.data.autor || '',
+                        descripcion: data.data.descripcion || '',
+                        genero: data.data.genero || '',
+                        fechaPublicacion: data.data.fechaPublicacion ? new Date(data.data.fechaPublicacion).toISOString().split('T')[0] : '',
+                        copias: data.data.copias || 1,
                         portada: null
                     });
-                    if (data.portada) {
-                        setPreviewUrl(`/uploads/${data.portada}`);
+                    if (data.data.portada) {
+                        setPreviewUrl(`/uploads/${data.data.portada}`);
                     }
                 } catch (err) {
                     setError('Error al cargar los datos del libro');
@@ -129,14 +131,6 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         loadBookData();
     }, [id, mode]);
 
-    if (loading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-                <Typography>Cargando...</Typography>
-            </Box>
-        );
-    }
-
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -145,6 +139,13 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         }
     };
 
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+                <Typography>Cargando...</Typography>
+            </Box>
+        );
+    }
     const renderImageUpload = () => (
         <Box sx={{ mt: 2, mb: 2 }}>
             <input
