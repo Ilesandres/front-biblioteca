@@ -7,17 +7,26 @@ class SocketService {
     }
 
     connect() {
-        this.socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000', {
-            withCredentials: true,
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('No token found');
+            return;
+        }
+
+        if (this.socket) {
+            this.socket.disconnect();
+        }
+
+        this.socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:3005', {
+            auth: {
+                token: token,
+                isAdmin: JSON.parse(localStorage.getItem('user'))?.isAdmin || false
+            },
             transports: ['websocket', 'polling']
         });
 
         this.socket.on('connect', () => {
             console.log('Conectado al servidor de WebSocket');
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user) {
-                this.authenticate(user.id);
-            }
         });
 
         this.socket.on('newMessage', (message) => {
@@ -33,9 +42,11 @@ class SocketService {
         });
     }
 
-    authenticate(userId) {
-        if (this.socket) {
-            this.socket.emit('authenticate', userId);
+    authenticate() {
+        const token = localStorage.getItem('token');
+        if (this.socket && token) {
+            this.socket.auth = { token };
+            this.socket.connect();
         }
     }
 

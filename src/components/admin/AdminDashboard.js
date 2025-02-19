@@ -8,7 +8,9 @@ import {
     CircularProgress,
     Alert,
     Card,
-    CardContent
+    CardContent,
+    Tabs,
+    Tab
 } from '@mui/material';
 import {
     Book as BookIcon,
@@ -17,6 +19,10 @@ import {
     Star as StarIcon
 } from '@mui/icons-material';
 import adminService from '../../services/admin.service';
+import AdminUsers from './AdminUsers';
+import AdminBooks from './AdminBooks';
+import { useAuth } from '../auth/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <Card sx={{ height: '100%' }}>
@@ -40,10 +46,17 @@ const AdminDashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [currentTab, setCurrentTab] = useState(0);
+    const { user } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
+        if (!user || user.rol !== 'admin') {
+            navigate('/login');
+            return;
+        }
         loadStats();
-    }, []);
+    }, [user, navigate]);
 
     const loadStats = async () => {
         try {
@@ -52,12 +65,20 @@ const AdminDashboard = () => {
             setStats(response.data);
             setError('');
         } catch (err) {
-            setError('Error al cargar las estadísticas');
-            console.error(err);
+            console.error('Error loading stats:', err);
+            if (err.response?.status === 403) {
+                setError('No tienes permisos para acceder a esta información');
+            } else {
+                setError('Error al cargar las estadísticas');
+            }
         } finally {
             setLoading(false);
         }
     };
+
+    if (!user || user.rol !== 'admin') {
+        return null;
+    }
 
     if (loading) {
         return (
@@ -75,46 +96,73 @@ const AdminDashboard = () => {
         );
     }
 
+    const handleTabChange = (event, newValue) => {
+        setCurrentTab(newValue);
+    };
+
+    const renderTabContent = () => {
+        switch (currentTab) {
+            case 0: // Dashboard
+                return (
+                    <Grid container spacing={3} mb={4}>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <StatCard
+                                title="Total Libros"
+                                value={stats?.totalLibros || 0}
+                                icon={BookIcon}
+                                color="primary.main"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <StatCard
+                                title="Usuarios Activos"
+                                value={stats?.usuariosActivos || 0}
+                                icon={PersonIcon}
+                                color="success.main"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <StatCard
+                                title="Préstamos Activos"
+                                value={stats?.prestamosActivos || 0}
+                                icon={LibraryIcon}
+                                color="info.main"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6} md={3}>
+                            <StatCard
+                                title="Total Reseñas"
+                                value={stats?.totalResenas || 0}
+                                icon={StarIcon}
+                                color="warning.main"
+                            />
+                        </Grid>
+                    </Grid>
+                );
+            case 1: // Users
+                return <AdminUsers />;
+            case 2: // Books
+                return <AdminBooks />;
+            default:
+                return null;
+        }
+    };
+
     return (
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Typography variant="h4" gutterBottom>
                 Panel de Administración
             </Typography>
 
-            <Grid container spacing={3} mb={4}>
-                <Grid item xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Total Libros"
-                        value={stats?.totalLibros || 0}
-                        icon={BookIcon}
-                        color="primary.main"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Usuarios Activos"
-                        value={stats?.usuariosActivos || 0}
-                        icon={PersonIcon}
-                        color="success.main"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Préstamos Activos"
-                        value={stats?.prestamosActivos || 0}
-                        icon={LibraryIcon}
-                        color="warning.main"
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3}>
-                    <StatCard
-                        title="Total Reseñas"
-                        value={stats?.totalResenas || 0}
-                        icon={StarIcon}
-                        color="info.main"
-                    />
-                </Grid>
-            </Grid>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs value={currentTab} onChange={handleTabChange}>
+                    <Tab label="Dashboard" />
+                    <Tab label="Usuarios" />
+                    <Tab label="Libros" />
+                </Tabs>
+            </Box>
+
+            {renderTabContent()}
 
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
@@ -138,4 +186,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;
