@@ -58,12 +58,13 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         onSubmit: async (values) => {
             try {
                 setError('');
+                setLoading(true);
                 const formData = new FormData();
                 
-                // Append form fields
+                // Append all form fields to FormData
                 Object.keys(values).forEach(key => {
-                    if (key !== 'portada' && values[key] !== null && values[key] !== undefined) {
-                        // Only apply trim() to string values
+                    if (key === 'portada') return; // Skip portada here, we'll handle it separately
+                    if (values[key] !== null && values[key] !== undefined) {
                         const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
                         formData.append(key, value);
                     }
@@ -71,26 +72,61 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 
                 // Handle image file separately
                 if (values.portada instanceof File) {
+                    console.log('Procesando nueva imagen para enviar:', values.portada.name);
                     if (values.portada.size > 5 * 1024 * 1024) { // 5MB limit
                         setError('La imagen no debe superar los 5MB');
+                        setLoading(false);
                         return;
                     }
                     if (!values.portada.type.startsWith('image/')) {
                         setError('El archivo debe ser una imagen');
+                        setLoading(false);
                         return;
                     }
                     formData.append('portada', values.portada);
+                    console.log('Imagen adjuntada al FormData');
+                }
+                // For create mode, require an image
+                if (mode === 'create' && !values.portada) {
+                    setError('Debes seleccionar una imagen para la portada');
+                    setLoading(false);
+                    return;
+                }
+                
+                // Add the current image URL if we're in edit mode and no new image was selected
+                if (mode === 'edit' && !values.portada && previewUrl) {
+                    formData.append('portadaActual', previewUrl);
                 }
                 
                 if (mode === 'create') {
                     await bookService.create(formData);
-                } else {
+                } else if (mode === 'edit' && id) {
+                    // Ensure all form fields are properly included in FormData
+                    Object.keys(values).forEach(key => {
+                        if (key === 'portada') return; // Skip portada here as it's handled separately
+                        if (values[key] !== null && values[key] !== undefined) {
+                            const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
+                            formData.delete(key); // Remove any existing value
+                            formData.append(key, value); // Add the new value
+                        }
+                    });
+                    
+                    // Handle the image
+                    if (values.portada instanceof File) {
+                        formData.delete('portada');
+                        formData.append('portada', values.portada);
+                    } else if (previewUrl) {
+                        formData.append('portadaActual', previewUrl);
+                    }
+                    
                     await bookService.update(id, formData);
                 }
                 
+                setLoading(false);
                 navigate('/');
             } catch (err) {
                 console.error('Error details:', err);
+                setLoading(false);
                 setError(err.response?.data?.message || 'Error al guardar el libro. Por favor, verifica los datos e intenta nuevamente.');
             }
         },
@@ -98,7 +134,12 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
 
     useEffect(() => {
         if (initialData?.portada) {
-            setPreviewUrl(`/uploads/${initialData.portada}`);
+            // Check if the portada URL is already a full URL (Cloudinary)
+            if (initialData.portada.startsWith('http')) {
+                setPreviewUrl(initialData.portada);
+            } else {
+                setPreviewUrl(`${process.env.REACT_APP_API_URL}/uploads/${initialData.portada}`);
+            }
         }
     }, [initialData]);
     useEffect(() => {
@@ -106,20 +147,24 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
             if (mode === 'edit' && id) {
                 setLoading(true);
                 try {
-                    const data = await bookService.getById(id);
-                    console.log(data);
-                    console.log(data.fechaPublicacion);
+                    const data1 = await bookService.getById(id);
+                    const data=data1.data;
                     formik.setValues({
-                        titulo: data.data.titulo || '',
-                        autor: data.data.autor || '',
-                        descripcion: data.data.descripcion || '',
-                        genero: data.data.genero || '',
-                        fechaPublicacion: data.data.fechaPublicacion ? new Date(data.data.fechaPublicacion).toISOString().split('T')[0] : '',
-                        copias: data.data.copias || 1,
+                        titulo: data.titulo || '',
+                        autor: data.autor || '',
+                        descripcion: data.descripcion || '',
+                        genero: data.genero || '',
+                        fechaPublicacion: data.fechaPublicacion ? new Date(data.fechaPublicacion).toISOString().split('T')[0] : '',
+                        copias: data.copias || 1,
                         portada: null
                     });
-                    if (data.data.portada) {
-                        setPreviewUrl(`/uploads/${data.data.portada}`);
+                    if (data.portada) {
+                        // Check if the portada URL is already a full URL (Cloudinary)
+                        if (data.portada.startsWith('http')) {
+                            setPreviewUrl(data.portada);
+                        } else {
+                            setPreviewUrl(`${process.env.REACT_APP_API_URL}/uploads/${data.portada}`);
+                        }
                     }
                 } catch (err) {
                     setError('Error al cargar los datos del libro');
@@ -134,8 +179,11 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            console.log('Nueva imagen detectada:', file.name);
             formik.setFieldValue('portada', file);
             setPreviewUrl(URL.createObjectURL(file));
+        } else {
+            console.log('No se seleccionó ninguna imagen');
         }
     };
 

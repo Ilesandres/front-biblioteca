@@ -62,26 +62,39 @@ export const AuthProvider = ({ children }) => {
     const validateUserData = (userData) => {
         if (!userData || typeof userData !== 'object') return false;
         if (!userData.rol || typeof userData.rol !== 'string') return false;
-        if (!['admin', 'user'].includes(userData.rol)) return false;
+        if (!['admin', 'user', 'usuario'].includes(userData.rol)) return false;
         if (!userData.email || typeof userData.email !== 'string') return false;
+        // Normalize role from 'usuario' to 'user' if needed
+        if (userData.rol === 'usuario') {
+            userData.rol = 'user';
+        }
         return true;
     };
 
     const login = async (credentials) => {
         try {
             if (!credentials.email || !credentials.password) {
-                throw new Error('Email and password are required');
+                return {
+                    success: false,
+                    message: 'El email y la contraseña son requeridos'
+                };
             }
 
             const response = await api.post('/usuarios/login', credentials);
             const { token, user: userData } = response.data;
             
             if (!token) {
-                throw new Error('No token received from server');
+                return {
+                    success: false,
+                    message: 'Error de autenticación: Token no recibido'
+                };
             }
 
             if (!validateUserData(userData)) {
-                throw new Error('Invalid user data or role not defined');
+                return {
+                    success: false,
+                    message: 'Error de autenticación: Datos de usuario inválidos'
+                };
             }
             
             localStorage.setItem('token', token);
@@ -97,7 +110,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('user');
             return {
                 success: false,
-                message: error.response?.data?.message || error.message || 'Error al iniciar sesión'
+                message: error.response?.status === 401
+                    ? 'Credenciales inválidas'
+                    : error.response?.data?.message || 'Error al iniciar sesión'
             };
         }
     };
@@ -121,6 +136,14 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
+            // Validate required fields
+            if (!userData.nombre || !userData.email || !userData.password) {
+                return {
+                    success: false,
+                    message: 'Todos los campos son requeridos'
+                };
+            }
+
             const response = await api.post('/usuarios/register', userData);
             const { token, data: newUser } = response.data;
             
@@ -144,7 +167,9 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('user');
             return {
                 success: false,
-                message: error.response?.data?.message || error.message || 'Error al registrar usuario'
+                message: error.response?.data?.message || 
+                        (error.response?.status === 400 ? 'Error de validación: Verifica los datos ingresados' : 
+                        error.message || 'Error al registrar usuario')
             };
         }
     };

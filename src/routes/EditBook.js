@@ -15,7 +15,8 @@ const EditBook = () => {
         const loadBook = async () => {
             try {
                 setLoading(true);
-                const bookData = await bookService.getById(id);
+                const response = await bookService.getById(id);
+                const bookData = response.data;
                 // Format the date to YYYY-MM-DD for the form
                 if (bookData.fechaPublicacion) {
                     bookData.fechaPublicacion = new Date(bookData.fechaPublicacion)

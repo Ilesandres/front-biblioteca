@@ -34,11 +34,10 @@ const Login = () => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            try {
-                await login(values);
-                navigate('/');
-            } catch (err) {
-                setError(err.response?.data?.message || 'Error al iniciar sesión');
+            setError('');
+            const result = await login(values);
+            if (!result.success) {
+                setError(result.message || 'Error al iniciar sesión');
             }
         }
     });
@@ -106,4 +105,4 @@ const Login = () => {
     );
 };
 
-export default Login; 
+export default Login;

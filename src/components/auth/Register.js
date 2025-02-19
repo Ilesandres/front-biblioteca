@@ -42,12 +42,11 @@ const Register = () => {
         },
         validationSchema,
         onSubmit: async (values) => {
-            try {
-                const { confirmPassword, ...registerData } = values;
-                await register(registerData);
-                navigate('/');
-            } catch (err) {
-                setError(err.response?.data?.message || 'Error al registrarse');
+            setError(''); // Clear previous errors
+            const { confirmPassword, ...registerData } = values;
+            const result = await register(registerData);
+            if (!result.success) {
+                setError(result.message || 'Error al registrarse');
             }
         }
     });
@@ -140,4 +139,4 @@ const Register = () => {
     );
 };
 
-export default Register; 
+export default Register;
