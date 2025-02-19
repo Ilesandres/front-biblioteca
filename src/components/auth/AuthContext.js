@@ -21,23 +21,31 @@ export const AuthProvider = ({ children }) => {
             const storedUser = localStorage.getItem('user');
             
             if (token && storedUser) {
+                // First validate token format and expiration
                 if (!validateToken(token)) {
                     throw new Error('Token is invalid or expired');
                 }
+
+                // Set initial user state from localStorage
                 const parsedUser = JSON.parse(storedUser);
                 if (!validateUserData(parsedUser)) {
                     throw new Error('Invalid stored user data');
                 }
                 setUser(parsedUser);
                 
-                // Verify token validity with backend
-                const response = await api.get('/usuarios/perfil');
-                if (response.data) {
-                    if (!validateUserData(response.data)) {
-                        throw new Error('Invalid user data from server');
+                try {
+                    // Verify token validity with backend
+                    const response = await api.get('/usuarios/perfil');
+                    if (response.data) {
+                        if (!validateUserData(response.data)) {
+                            throw new Error('Invalid user data from server');
+                        }
+                        setUser(response.data);
+                        localStorage.setItem('user', JSON.stringify(response.data));
                     }
-                    setUser(response.data);
-                    localStorage.setItem('user', JSON.stringify(response.data));
+                } catch (serverError) {
+                    // If server validation fails, keep using stored data
+                    console.warn('Could not validate with server, using stored credentials:', serverError);
                 }
             }
         } catch (error) {
@@ -45,6 +53,7 @@ export const AuthProvider = ({ children }) => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setUser(null);
+            navigate('/login');
         } finally {
             setLoading(false);
         }

@@ -88,7 +88,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                     await bookService.update(id, formData);
                 }
                 
-                navigate('/books');
+                navigate('/');
             } catch (err) {
                 console.error('Error details:', err);
                 setError(err.response?.data?.message || 'Error al guardar el libro. Por favor, verifica los datos e intenta nuevamente.');
