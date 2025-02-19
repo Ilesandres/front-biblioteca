@@ -27,14 +27,19 @@ const bookService = {
     },
 
     create: async (bookData) => {
-        const formData = new FormData();
-        Object.keys(bookData).forEach(key => {
-            if (key === 'portada' && bookData[key] instanceof File) {
-                formData.append(key, bookData[key]);
-            } else {
-                formData.append(key, bookData[key]);
-            }
-        });
+        // If bookData is already a FormData object, use it directly
+        const formData = bookData instanceof FormData ? bookData : new FormData();
+        
+        // If it's not a FormData object, create one
+        if (!(bookData instanceof FormData)) {
+            Object.keys(bookData).forEach(key => {
+                if (key === 'portada' && bookData[key] instanceof File) {
+                    formData.append(key, bookData[key]);
+                } else if (bookData[key] !== null && bookData[key] !== undefined) {
+                    formData.append(key, bookData[key]);
+                }
+            });
+        }
 
         const response = await api.post('/libros', formData, {
             headers: {

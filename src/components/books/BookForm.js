@@ -57,22 +57,41 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         enableReinitialize: true,
         onSubmit: async (values) => {
             try {
+                setError('');
                 const formData = new FormData();
+                
+                // Append form fields
                 Object.keys(values).forEach(key => {
-                    if (values[key] !== null) {
-                        formData.append(key, values[key]);
+                    if (key !== 'portada' && values[key] !== null && values[key] !== undefined) {
+                        // Only apply trim() to string values
+                        const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
+                        formData.append(key, value);
                     }
                 });
-
+                
+                // Handle image file separately
+                if (values.portada instanceof File) {
+                    if (values.portada.size > 5 * 1024 * 1024) { // 5MB limit
+                        setError('La imagen no debe superar los 5MB');
+                        return;
+                    }
+                    if (!values.portada.type.startsWith('image/')) {
+                        setError('El archivo debe ser una imagen');
+                        return;
+                    }
+                    formData.append('portada', values.portada);
+                }
+                
                 if (mode === 'create') {
                     await bookService.create(formData);
                 } else {
                     await bookService.update(id, formData);
                 }
-
+                
                 navigate('/books');
             } catch (err) {
-                setError(err.response?.data?.message || 'Error al guardar el libro');
+                console.error('Error details:', err);
+                setError(err.response?.data?.message || 'Error al guardar el libro. Por favor, verifica los datos e intenta nuevamente.');
             }
         },
     });
@@ -122,14 +141,39 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         const file = event.target.files[0];
         if (file) {
             formik.setFieldValue('portada', file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
+    const renderImageUpload = () => (
+        <Box sx={{ mt: 2, mb: 2 }}>
+            <input
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="portada-upload"
+                type="file"
+                onChange={handleImageChange}
+            />
+            <label htmlFor="portada-upload">
+                <Button
+                    variant="outlined"
+                    component="span"
+                    startIcon={<PhotoCamera />}
+                >
+                    Subir Portada
+                </Button>
+            </label>
+            {previewUrl && (
+                <Box sx={{ mt: 2 }}>
+                    <img
+                        src={previewUrl}
+                        alt="Vista previa de la portada"
+                        style={{ maxWidth: '200px', maxHeight: '300px' }}
+                    />
+                </Box>
+            )}
+        </Box>
+    );
     return (
         <Paper sx={{ p: 4, maxWidth: 800, mx: 'auto', mt: 4 }}>
             <Box display="flex" alignItems="center" mb={3}>

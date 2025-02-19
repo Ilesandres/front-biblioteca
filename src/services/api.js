@@ -4,10 +4,7 @@ import { toast } from 'react-toastify';
 const API_URL = 'http://localhost:3005/api'; // Updated port to match backend
 
 const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json'
-    }
+    baseURL: API_URL
 });
 
 // Interceptor para agregar el token a todas las peticiones
@@ -16,6 +13,10 @@ api.interceptors.request.use(
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+        }
+        // Let axios set the correct Content-Type for FormData
+        if (!(config.data instanceof FormData)) {
+            config.headers['Content-Type'] = 'application/json';
         }
         return config;
     },
