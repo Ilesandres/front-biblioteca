@@ -98,10 +98,20 @@ const UserProfile = () => {
                     updateData.password = values.password;
                 }
                 const response = await userService.updateProfile(updateData);
-                setUser(response.data);
+                // Update the user data with the response
+                setUser({
+                    ...user,
+                    nombre: response.data.nombre,
+                    email: response.data.email
+                });
                 setEditing(false);
+                // Reset password fields
+                formik.setFieldValue('password', '');
+                formik.setFieldValue('confirmPassword', '');
+                // Show success message
+                setError('');
             } catch (err) {
-                setError(err.response?.data?.message || 'Error al actualizar el perfil');
+                setError(err.response?.data?.error || 'Error al actualizar el perfil');
             } finally {
                 setLoading(false);
             }
@@ -275,4 +285,4 @@ const UserProfile = () => {
     );
 };
 
-export default UserProfile; 
+export default UserProfile;
