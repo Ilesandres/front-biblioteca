@@ -61,9 +61,9 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 setLoading(true);
                 const formData = new FormData();
                 
-                // Append all form fields to FormData
+                
                 Object.keys(values).forEach(key => {
-                    if (key === 'portada') return; // Skip portada here, we'll handle it separately
+                    if (key === 'portada') return; 
                     if (values[key] !== null && values[key] !== undefined) {
                         const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
                         formData.append(key, value);

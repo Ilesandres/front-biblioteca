@@ -117,8 +117,8 @@ const LoanList = () => {
                                         <Box display="flex" alignItems="center" gap={2}>
                                             <Box
                                                 component="img"
-                                                src={loan.libro?.portada || '/default-book-cover.jpg'}
-                                                alt={loan.libro?.titulo}
+                                                src={loan.Libro?.portada ? `${loan.Libro.portada}`  : '/default-book-cover.jpg'}
+                                                alt={loan.Libro?.titulo}
                                                 sx={{ width: 50, height: 70, objectFit: 'cover' }}
                                             />
                                             <Box>
@@ -174,4 +174,4 @@ const LoanList = () => {
     );
 };
 
-export default LoanList; 
+export default LoanList;
