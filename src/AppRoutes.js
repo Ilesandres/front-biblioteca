@@ -1,10 +1,21 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './components/auth/AuthContext';
 import Login from './screen/Login';
 import Register from './screen/Register';
 import ChatList from './screen/ChatList';
 import Chat from './screen/chat';
 import BookManagement from './screen/BookManagement';
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  return !isAuthenticated ? children : <Navigate to="/dashboard" replace />;
+};
 
 const AppRoutes = () => {
   const chats = [
@@ -13,12 +24,49 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Login onLogin={(e, p) => console.log(e, p)} />} />
-      <Route path="/register" element={<Register onRegister={(u) => console.log(u)} />} />
-      <Route path="/chats" element={<ChatList chats={chats} />} />
-      <Route path="/chat/:id" element={<Chat chat={chats[0]} />} />
-      <Route path="/books/new" element={<BookManagement />} />
-      <Route path="/books/edit/:id" element={<BookManagement />} />
+      {/* Public Routes */}
+      <Route path="/login" element={
+        <PublicRoute>
+          <Login />
+        </PublicRoute>
+      } />
+      <Route path="/register" element={
+        <PublicRoute>
+          <Register />
+        </PublicRoute>
+      } />
+
+      {/* Protected Routes */}
+      <Route path="/dashboard" element={
+        <PrivateRoute>
+          <ChatList chats={chats} />
+        </PrivateRoute>
+      } />
+      <Route path="/chat/:id" element={
+        <PrivateRoute>
+          <Chat chat={chats[0]} />
+        </PrivateRoute>
+      } />
+      <Route path="/books/new" element={
+        <PrivateRoute>
+          <BookManagement />
+        </PrivateRoute>
+      } />
+      <Route path="/books/edit/:id" element={
+        <PrivateRoute>
+          <BookManagement />
+        </PrivateRoute>
+      } />
+
+      {/* Redirect root to login */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      
+      {/* Catch all route - redirect to dashboard if authenticated, otherwise to login */}
+      <Route path="*" element={
+        <PrivateRoute>
+          <Navigate to="/dashboard" replace />
+        </PrivateRoute>
+      } />
     </Routes>
   );
 };

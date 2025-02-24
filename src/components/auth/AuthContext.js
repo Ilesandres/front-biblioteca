@@ -60,14 +60,10 @@ export const AuthProvider = ({ children }) => {
     };
 
     const validateUserData = (userData) => {
+        // Validate basic user data and role
         if (!userData || typeof userData !== 'object') return false;
-        if (!userData.rol || typeof userData.rol !== 'string') return false;
-        if (!['admin', 'user', 'usuario'].includes(userData.rol)) return false;
         if (!userData.email || typeof userData.email !== 'string') return false;
-        // Normalize role from 'usuario' to 'user' if needed
-        if (userData.rol === 'usuario') {
-            userData.rol = 'user';
-        }
+        if (!userData.rol || typeof userData.rol !== 'string') return false;
         return true;
     };
 
@@ -108,11 +104,21 @@ export const AuthProvider = ({ children }) => {
             console.error('Login error:', error);
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            
+            let errorMessage = 'Error al iniciar sesión';
+            if (error.response) {
+                if (error.response.status === 401) {
+                    errorMessage = 'Credenciales inválidas';
+                } else if (error.response.data?.error) {
+                    errorMessage = error.response.data.error;
+                }
+            } else if (error.request) {
+                errorMessage = 'No se pudo conectar con el servidor';
+            }
+            
             return {
                 success: false,
-                message: error.response?.status === 401
-                    ? 'Credenciales inválidas'
-                    : error.response?.data?.message || 'Error al iniciar sesión'
+                message: errorMessage
             };
         }
     };
@@ -145,8 +151,8 @@ export const AuthProvider = ({ children }) => {
             }
 
             const response = await api.post('/usuarios/register', userData);
-            const { token, data: newUser } = response.data;
-            
+            const { token, user: newUser } = response.data;
+
             if (!token) {
                 throw new Error('No token received from server');
             }

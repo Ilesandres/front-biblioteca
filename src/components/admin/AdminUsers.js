@@ -45,7 +45,7 @@ const AdminUsers = () => {
         try {
             setLoading(true);
             const response = await adminService.getUsers();
-            setUsers(response.data);
+            setUsers(response || []);
         } catch (err) {
             setError('Error al cargar los usuarios');
             console.error(err);

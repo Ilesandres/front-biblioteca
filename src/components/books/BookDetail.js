@@ -40,8 +40,8 @@ const BookDetail = () => {
     const loadBook = async () => {
         try {
             setLoading(true);
-            const response = await bookService.getById(id);
-            setBook(response.data);
+            const data = await bookService.getById(id);
+            setBook(data);
             setError('');
         } catch (err) {
             setError('Error al cargar el libro');
@@ -109,7 +109,7 @@ const BookDetail = () => {
                         </Typography>
 
                         <Box display="flex" gap={1} mb={2}>
-                            <Chip label={book.genero} color="primary" variant="outlined" />
+                            <Chip label={book.categorias} color="primary" variant="outlined" />
                             <Chip
                                 label={book.disponible ? 'Disponible' : 'No disponible'}
                                 color={book.disponible ? 'success' : 'error'}
@@ -118,15 +118,14 @@ const BookDetail = () => {
 
                         <Box display="flex" alignItems="center" mb={2}>
                             <Rating
-                                value={book.calificacionPromedio || 0}
+                                value={Number(book.calificacion_promedio) || 0}
                                 readOnly
                                 precision={0.5}
                             />
                             <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                                ({book.numeroResenas || 0} reseñas)
+                                ({book.total_resenas || 0} reseñas)
                             </Typography>
                         </Box>
-
                         <Typography variant="body1" paragraph>
                             {book.descripcion}
                         </Typography>
@@ -160,10 +159,10 @@ const BookDetail = () => {
                         </Box>
                         <Box mt={3}>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Fecha de publicación: {new Date(book.fechaPublicacion).toLocaleDateString()}
+                                Fecha de publicación: {new Date(book.anioPublicacion).toLocaleDateString()}
                             </Typography>
                             <Typography variant="subtitle2" color="text.secondary">
-                                Copias disponibles: {book.copias}
+                                Copias disponibles: {book.stock}
                             </Typography>
                         </Box>
                     </Grid>

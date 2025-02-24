@@ -49,22 +49,22 @@ const adminService = {
 
     // Book management functions
     getBooks: async () => {
-        const response = await api.get('/admin/libros');
+        const response = await api.get('/libros');
         return response.data;
     },
 
     createBook: async (bookData) => {
-        const response = await api.post('/admin/libros', bookData);
+        const response = await api.post('/libros', bookData);
         return response.data;
     },
 
     updateBook: async (bookId, bookData) => {
-        const response = await api.put(`/admin/libros/${bookId}`, bookData);
+        const response = await api.put(`/libros/${bookId}`, bookData);
         return response.data;
     },
 
     deleteBook: async (bookId) => {
-        const response = await api.delete(`/admin/libros/${bookId}`);
+        const response = await api.delete(`/libros/${bookId}`);
         return response.data;
     }
 };

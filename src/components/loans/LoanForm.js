@@ -38,8 +38,8 @@ const LoanForm = () => {
     const loadBook = async () => {
         try {
             const response = await bookService.getById(bookId);
-            setBook(response.data);
-            if (!response.data.disponible) {
+            setBook(response);
+            if (!response.disponible) {
                 setError('Este libro no está disponible para préstamo');
             }
         } catch (err) {

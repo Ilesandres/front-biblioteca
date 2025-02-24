@@ -48,28 +48,31 @@ const BookCard = ({ book, onUpdate }) => {
             />
             <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="h6" component="h2" noWrap>
-                    {book.titulo}
+                    {book.titulo} 
                 </Typography>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
                     {book.autor}
                 </Typography>
                 <Box display="flex" gap={1} mb={1}>
-                    <Chip 
-                        label={book.genero}
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                    />
+                    {book.categorias && (
+                        <Chip 
+                            label={book.categorias}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                        />
+                    )}
                     <Chip
                         label={book.disponible ? 'Disponible' : 'No disponible'}
                         size="small"
-                        color={book.disponible ? 'success' : 'error'}
+                        color="primary"
+                        sx={{ opacity: book.disponible ? 1 : 0.6 }}
                     />
                 </Box>
                 <Typography variant="body2" color="text.secondary">
-                    {book.descripcion.length > 100 
+                    {book.descripcion && (book.descripcion.length > 100 
                         ? `${book.descripcion.substring(0, 100)}...` 
-                        : book.descripcion}
+                        : book.descripcion)}
                 </Typography>
             </CardContent>
             <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2 }}>
@@ -118,4 +121,4 @@ const BookCard = ({ book, onUpdate }) => {
     );
 };
 
-export default BookCard; 
+export default BookCard;

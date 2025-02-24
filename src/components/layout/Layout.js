@@ -69,7 +69,7 @@ const Layout = ({ children }) => {
                                     sx={{ p: 0 }}
                                 >
                                     <Avatar alt={user.nombre}>
-                                        {user.nombre[0].toUpperCase()}
+                                        {user.nombre ? user.nombre[0].toUpperCase() : ''}
                                     </Avatar>
                                 </IconButton>
                                 <Menu
@@ -113,4 +113,4 @@ const Layout = ({ children }) => {
     );
 };
 
-export default Layout; 
+export default Layout;

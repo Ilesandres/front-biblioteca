@@ -14,13 +14,16 @@ import {
     IconButton
 } from '@mui/material';
 import { PhotoCamera, ArrowBack } from '@mui/icons-material';
-import { GENEROS } from './BookFilters';
 import bookService from '../../services/book.service';
+import genreService from '../../services/genre.service';
 
 const validationSchema = Yup.object({
     titulo: Yup.string()
         .required('El título es requerido')
         .min(2, 'El título debe tener al menos 2 caracteres'),
+    isbn: Yup.string()
+        .required('El ISBN es requerido')
+        .matches(/^\d{13}$/, 'El ISBN debe ser un número de 13 dígitos. Por favor, ingrese solo los números sin guiones ni espacios'),
     autor: Yup.string()
         .required('El autor es requerido')
         .min(2, 'El autor debe tener al menos 2 caracteres'),
@@ -33,7 +36,10 @@ const validationSchema = Yup.object({
         .required('La fecha de publicación es requerida'),
     copias: Yup.number()
         .required('El número de copias es requerido')
-        .min(1, 'Debe haber al menos 1 copia')
+        .min(1, 'Debe haber al menos 1 copia'),
+    stock: Yup.number()
+        .required('El stock es requerido')
+        .min(0, 'El stock no puede ser negativo')
 });
 
 const BookForm = ({ mode = 'create', initialData = null }) => {
@@ -41,16 +47,33 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
     const { id } = useParams();
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewUrl, setPreviewUrl] = useState('');
+    const [genres, setGenres] = useState([]);
+
+    useEffect(() => {
+        const loadGenres = async () => {
+            try {
+                const genreData = await genreService.getAllGenres();
+                setGenres(genreData);
+            } catch (error) {
+                console.error('Error loading genres:', error);
+                setError('Error loading genres');
+            }
+        };
+        loadGenres();
+    }, []);
 
     const formik = useFormik({
         initialValues: {
             titulo: initialData?.titulo || '',
+            isbn: initialData?.isbn || '',
             autor: initialData?.autor || '',
             descripcion: initialData?.descripcion || '',
             genero: initialData?.genero || '',
             fechaPublicacion: initialData?.fechaPublicacion ? new Date(initialData.fechaPublicacion).toISOString().split('T')[0] : '',
             copias: initialData?.copias || 1,
+            stock: initialData?.copias || 1,
             portada: null
         },
         validationSchema,
@@ -61,64 +84,32 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 setLoading(true);
                 const formData = new FormData();
                 
+                // Add all form fields to FormData
+                formData.append('titulo', values.titulo);
+                formData.append('autor', values.autor);
+                formData.append('isbn', values.isbn);
+                formData.append('descripcion', values.descripcion);
+                formData.append('genero', values.genero);
+                formData.append('anioPublicacion', values.fechaPublicacion);
+                formData.append('stock', values.stock);
+                formData.append('copias', values.copias);
+                formData.append('stock', values.copias); // Add stock field with same value as copias
                 
-                Object.keys(values).forEach(key => {
-                    if (key === 'portada') return; 
-                    if (values[key] !== null && values[key] !== undefined) {
-                        const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
-                        formData.append(key, value);
-                    }
-                });
-                
-                // Handle image file separately
+                // Handle image upload
                 if (values.portada instanceof File) {
-                    console.log('Procesando nueva imagen para enviar:', values.portada.name);
-                    if (values.portada.size > 5 * 1024 * 1024) { // 5MB limit
-                        setError('La imagen no debe superar los 5MB');
-                        setLoading(false);
-                        return;
-                    }
-                    if (!values.portada.type.startsWith('image/')) {
-                        setError('El archivo debe ser una imagen');
-                        setLoading(false);
-                        return;
-                    }
                     formData.append('portada', values.portada);
-                    console.log('Imagen adjuntada al FormData');
-                }
-                // For create mode, require an image
-                if (mode === 'create' && !values.portada) {
-                    setError('Debes seleccionar una imagen para la portada');
-                    setLoading(false);
-                    return;
-                }
-                
-                // Add the current image URL if we're in edit mode and no new image was selected
-                if (mode === 'edit' && !values.portada && previewUrl) {
+                } else if (mode === 'edit' && previewUrl) {
                     formData.append('portadaActual', previewUrl);
                 }
-                
+
                 if (mode === 'create') {
+                    if (!values.portada) {
+                        setError('Debes seleccionar una imagen para la portada');
+                        setLoading(false);
+                        return;
+                    }
                     await bookService.create(formData);
                 } else if (mode === 'edit' && id) {
-                    // Ensure all form fields are properly included in FormData
-                    Object.keys(values).forEach(key => {
-                        if (key === 'portada') return; // Skip portada here as it's handled separately
-                        if (values[key] !== null && values[key] !== undefined) {
-                            const value = typeof values[key] === 'string' ? values[key].trim() : values[key];
-                            formData.delete(key); // Remove any existing value
-                            formData.append(key, value); // Add the new value
-                        }
-                    });
-                    
-                    // Handle the image
-                    if (values.portada instanceof File) {
-                        formData.delete('portada');
-                        formData.append('portada', values.portada);
-                    } else if (previewUrl) {
-                        formData.append('portadaActual', previewUrl);
-                    }
-                    
                     await bookService.update(id, formData);
                 }
                 
@@ -148,14 +139,16 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 setLoading(true);
                 try {
                     const data1 = await bookService.getById(id);
-                    const data=data1.data;
+                    const data=data1;
                     formik.setValues({
                         titulo: data.titulo || '',
                         autor: data.autor || '',
+                        isbn: data.isbn || '',
                         descripcion: data.descripcion || '',
-                        genero: data.genero || '',
-                        fechaPublicacion: data.fechaPublicacion ? new Date(data.fechaPublicacion).toISOString().split('T')[0] : '',
-                        copias: data.copias || 1,
+                        genero: data.categoriaIds || '',
+                        fechaPublicacion: data.anioPublicacion ? new Date(data.anioPublicacion).toISOString().split('T')[0] : '',
+                        copias: data.stock || 1,
+                        stock: data.stock || 1,
                         portada: null
                     });
                     if (data.portada) {
@@ -250,7 +243,18 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             value={formik.values.titulo}
                             onChange={formik.handleChange}
                             error={formik.touched.titulo && Boolean(formik.errors.titulo)}
-                            helperText={formik.touched.titulo && formik.errors.titulo}
+                            helperText={(formik.touched.titulo && formik.errors.titulo) || 'Ingrese el título completo del libro'}
+                            margin="normal"
+                        />
+
+                        <TextField
+                            fullWidth
+                            name="isbn"
+                            label="ISBN"
+                            value={formik.values.isbn}
+                            onChange={formik.handleChange}
+                            error={formik.touched.isbn && Boolean(formik.errors.isbn)}
+                            helperText={(formik.touched.isbn && formik.errors.isbn) || 'Ingrese el ISBN-10 o ISBN-13 del libro (ejemplo: 978-3-16-148410-0)'}
                             margin="normal"
                         />
 
@@ -261,20 +265,20 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             value={formik.values.autor}
                             onChange={formik.handleChange}
                             error={formik.touched.autor && Boolean(formik.errors.autor)}
-                            helperText={formik.touched.autor && formik.errors.autor}
+                            helperText={(formik.touched.autor && formik.errors.autor) || 'Ingrese el nombre completo del autor'}
                             margin="normal"
                         />
 
                         <TextField
                             fullWidth
-                            name="descripcion"
-                            label="Descripción"
                             multiline
                             rows={4}
+                            name="descripcion"
+                            label="Descripción"
                             value={formik.values.descripcion}
                             onChange={formik.handleChange}
                             error={formik.touched.descripcion && Boolean(formik.errors.descripcion)}
-                            helperText={formik.touched.descripcion && formik.errors.descripcion}
+                            helperText={(formik.touched.descripcion && formik.errors.descripcion) || 'Ingrese una descripción detallada del libro'}
                             margin="normal"
                         />
                     </Grid>
@@ -332,12 +336,12 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             value={formik.values.genero}
                             onChange={formik.handleChange}
                             error={formik.touched.genero && Boolean(formik.errors.genero)}
-                            helperText={formik.touched.genero && formik.errors.genero}
+                            helperText={(formik.touched.genero && formik.errors.genero) || 'Seleccione el género literario del libro'}
                             margin="normal"
                         >
-                            {GENEROS.map((genero) => (
-                                <MenuItem key={genero} value={genero}>
-                                    {genero}
+                            {genres.map((genero) => (
+                                <MenuItem key={genero.id} value={genero.id}>
+                                    {genero.nombre}
                                 </MenuItem>
                             ))}
                         </TextField>
@@ -352,7 +356,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             value={formik.values.fechaPublicacion}
                             onChange={formik.handleChange}
                             error={formik.touched.fechaPublicacion && Boolean(formik.errors.fechaPublicacion)}
-                            helperText={formik.touched.fechaPublicacion && formik.errors.fechaPublicacion}
+                            helperText={(formik.touched.fechaPublicacion && formik.errors.fechaPublicacion) || 'Seleccione la fecha de publicación del libro'}
                             margin="normal"
                             InputLabelProps={{
                                 shrink: true,
@@ -369,12 +373,11 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             value={formik.values.copias}
                             onChange={formik.handleChange}
                             error={formik.touched.copias && Boolean(formik.errors.copias)}
-                            helperText={formik.touched.copias && formik.errors.copias}
+                            helperText={(formik.touched.copias && formik.errors.copias) || 'Indique la cantidad de copias disponibles'}
                             margin="normal"
                             InputProps={{ inputProps: { min: 1 } }}
                         />
                     </Grid>
-
                     <Grid item xs={12}>
                         <Box display="flex" gap={2} justifyContent="flex-end">
                             <Button

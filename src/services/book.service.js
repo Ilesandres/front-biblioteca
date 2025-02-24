@@ -13,12 +13,7 @@ const bookService = {
         });
 
         const response = await api.get(`/libros?${queryParams}`);
-        return {
-            data: response.data?.data || [],
-            total: response.data?.pagination?.total || 0,
-            page: response.data?.pagination?.page || 1,
-            totalPages: response.data?.pagination?.pages || 1
-        };
+        return response.data;
     },
 
     getById: async (id) => {
@@ -51,6 +46,10 @@ const bookService = {
 
     update: async (id, bookData) => {
         const formData = new FormData();
+        console.log('bookdata') 
+        console.log(...bookData.entries());
+        
+        console.log(formData);
         Object.keys(bookData).forEach(key => {
             if (key === 'portada' && bookData[key] instanceof File) {
                 formData.append(key, bookData[key]);
@@ -58,7 +57,7 @@ const bookService = {
                 formData.append(key, bookData[key]);
             }
         });
-
+        console.log([...formData.entries()]);
         const response = await api.put(`/libros/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'

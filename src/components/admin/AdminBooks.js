@@ -43,7 +43,7 @@ const AdminBooks = () => {
         try {
             setLoading(true);
             const response = await adminService.getBooks();
-            setBooks(response.data);
+            setBooks(response);
         } catch (err) {
             setError('Error al cargar los libros');
             console.error(err);
@@ -162,28 +162,37 @@ const AdminBooks = () => {
                         <TextField
                             fullWidth
                             label="Título"
+                            name="titulo"
                             defaultValue={selectedBook?.titulo || ''}
                             margin="normal"
-                        />
-                        <TextField
-                            fullWidth
-                            label="Autor"
-                            defaultValue={selectedBook?.autor || ''}
-                            margin="normal"
+                            required
                         />
                         <TextField
                             fullWidth
                             label="ISBN"
+                            name="isbn"
                             defaultValue={selectedBook?.isbn || ''}
                             margin="normal"
+                            required
+                            helperText="Identificador único del libro (ISBN-10 o ISBN-13)"
+                        />
+                        <TextField
+                            fullWidth
+                            label="Autor"
+                            name="autor"
+                            defaultValue={selectedBook?.autor || ''}
+                            margin="normal"
+                            required
                         />
                         <TextField
                             fullWidth
                             label="Descripción"
+                            name="descripcion"
                             multiline
                             rows={4}
                             defaultValue={selectedBook?.descripcion || ''}
                             margin="normal"
+                            required
                         />
                     </Box>
                 </DialogContent>

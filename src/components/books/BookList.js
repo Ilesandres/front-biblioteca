@@ -44,11 +44,13 @@ const BookList = () => {
                 limit: pagination.limit
             });
             
-            setBooks(response.data);
+            // Update to handle direct array response from backend
+            const booksData = Array.isArray(response) ? response : response.data;
+            setBooks(booksData);
             setPagination(prev => ({
                 ...prev,
-                totalPages: Math.ceil(response.total / pagination.limit),
-                totalItems: response.total
+                totalPages: Math.ceil(booksData.length / pagination.limit),
+                totalItems: booksData.length
             }));
             setError('');
         } catch (err) {

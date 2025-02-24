@@ -47,7 +47,7 @@ const ReviewItem = ({ review, onEdit, onDelete, currentUser }) => {
             <Box display="flex" justifyContent="space-between" alignItems="flex-start">
                 <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
-                        {review.usuario?.nombre || 'Usuario'}
+                        {review.usuario_nombre || 'Usuario'}
                     </Typography>
                     <Box display="flex" alignItems="center" mb={1}>
                         <Rating value={review.calificacion} readOnly size="small" />
@@ -98,7 +98,7 @@ const ReviewList = ({ bookId, onReviewUpdated }) => {
         try {
             setLoading(true);
             const response = await reviewService.getByBook(bookId);
-            setReviews(response.data);
+            setReviews(response.resenas || []);
             setError('');
         } catch (err) {
             setError('Error al cargar las reseñas');
@@ -170,4 +170,4 @@ const ReviewList = ({ bookId, onReviewUpdated }) => {
     );
 };
 
-export default ReviewList; 
+export default ReviewList;

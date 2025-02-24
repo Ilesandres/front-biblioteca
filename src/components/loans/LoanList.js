@@ -44,7 +44,7 @@ const LoanList = () => {
         try {
             setLoading(true);
             const response = await loanService.getUserLoans();
-            setLoans(response.data);
+            setLoans(await response || []); // Initialize as empty array if response is undefined
             setError('');
         } catch (err) {
             setError('Error al cargar los préstamos');
@@ -112,40 +112,41 @@ const LoanList = () => {
                         </TableHead>
                         <TableBody>
                             {loans.map((loan) => (
+                                console.log(loan.id),
                                 <TableRow key={loan.id}>
                                     <TableCell>
                                         <Box display="flex" alignItems="center" gap={2}>
                                             <Box
                                                 component="img"
-                                                src={loan.Libro?.portada ? `${loan.Libro.portada}`  : '/default-book-cover.jpg'}
-                                                alt={loan.Libro?.titulo}
+                                                src={loan.libro_Portada || '/default-book-cover.jpg'}
+                                                alt={loan.libro_titulo || 'Portada del libro'}
                                                 sx={{ width: 50, height: 70, objectFit: 'cover' }}
                                             />
                                             <Box>
                                                 <Typography variant="subtitle2">
-                                                    {loan.libro?.titulo}
+                                                    {loan.libro_titulo || 'Sin título'}
                                                 </Typography>
                                                 <Typography variant="caption" color="text.secondary">
-                                                    {loan.libro?.autor}
+                                                    {loan.libro_autor || 'Autor desconocido'}
                                                 </Typography>
                                             </Box>
                                         </Box>
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(loan.createdAt).toLocaleDateString()}
+                                        {new Date(loan.fechaPrestamo).toLocaleDateString()}
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(loan.fechaDevolucion).toLocaleDateString()}
+                                        {loan.fechaDevolucion ? new Date(loan.fechaDevolucion).toLocaleDateString() : 'Pendiente'}
                                     </TableCell>
                                     <TableCell>
                                         <Chip
-                                            label={loan.estado}
-                                            color={getStatusColor(loan.estado)}
+                                            label={loan.estado_prestamo || 'activo'}
+                                            color={getStatusColor(loan.estado_prestamo || 'activo')}
                                             size="small"
                                         />
                                     </TableCell>
                                     <TableCell>
-                                        {loan.estado === 'activo' && (
+                                        {(!loan.fechaDevolucion || loan.estado_prestamo === 'prestado') && (
                                             <Box display="flex" gap={1}>
                                                 <Button
                                                     size="small"
