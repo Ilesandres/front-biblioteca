@@ -3,17 +3,14 @@ import api from './api';
 const adminService = {
     getStats: async () => {
         const response = await api.get('/admin/stats');
-        return response.data;
-    },
-
-    getRecentLoans: async () => {
-        const response = await api.get('/admin/prestamos/recientes');
-        return response.data;
-    },
-
-    getRecentReviews: async () => {
-        const response = await api.get('/admin/resenas/recientes');
-        return response.data;
+        return {
+            totalLibros: response.data.libros,
+            usuariosActivos: response.data.usuarios,
+            prestamosActivos: response.data.prestamosActivos,
+            totalResenas: response.data.totalResenas,
+            prestamosRecientes: response.data.prestamosRecientes,
+            ultimasResenas: response.data.ultimasResenas
+        };
     },
 
     getOverdueLoans: async () => {
@@ -54,12 +51,40 @@ const adminService = {
     },
 
     createBook: async (bookData) => {
-        const response = await api.post('/libros', bookData);
+        const formData = new FormData();
+        
+        Object.entries(bookData).forEach(([key, value]) => {
+            if (key === 'portada' && value instanceof File) {
+                formData.append('portada', value);
+            } else if (key === 'genero' && Array.isArray(value)) {
+                value.forEach(cat => formData.append('genero', cat));
+            } else {
+                formData.append(key, value);
+            }
+        });
+
+        const response = await api.post('/libros', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     },
 
     updateBook: async (bookId, bookData) => {
-        const response = await api.put(`/libros/${bookId}`, bookData);
+        const formData = new FormData();
+        
+        Object.entries(bookData).forEach(([key, value]) => {
+            if (key === 'portada' && value instanceof File) {
+                formData.append('portada', value);
+            } else if (key === 'genero' && Array.isArray(value)) {
+                value.forEach(cat => formData.append('genero', cat));
+            } else {
+                formData.append(key, value);
+            }
+        });
+
+        const response = await api.put(`/libros/${bookId}`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
         return response.data;
     },
 

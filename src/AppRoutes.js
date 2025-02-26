@@ -6,6 +6,7 @@ import Register from './screen/Register';
 import ChatList from './screen/ChatList';
 import Chat from './screen/chat';
 import BookManagement from './screen/BookManagement';
+import ImportExport from './screen/ImportExport';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -55,6 +56,11 @@ const AppRoutes = () => {
       <Route path="/books/edit/:id" element={
         <PrivateRoute>
           <BookManagement />
+        </PrivateRoute>
+      } />
+      <Route path="/admin/import-export" element={
+        <PrivateRoute>
+          <ImportExport />
         </PrivateRoute>
       } />
 

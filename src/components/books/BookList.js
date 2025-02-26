@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
-import bookService from '../../services/book.service';
+import libroService from '../../services/libroService';
 import BookCard from './BookCard';
 import BookFilters from './BookFilters';
 
@@ -38,7 +38,7 @@ const BookList = () => {
     const loadBooks = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await bookService.getAll({
+            const response = await libroService.getLibros({
                 ...filters,
                 page: pagination.page,
                 limit: pagination.limit

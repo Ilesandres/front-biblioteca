@@ -19,7 +19,7 @@ import {
     Book as BookIcon
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
-import bookService from '../../services/book.service';
+import libroService from '../../services/libroService';
 
 const BookCard = ({ book, onUpdate }) => {
     const navigate = useNavigate();
@@ -29,7 +29,7 @@ const BookCard = ({ book, onUpdate }) => {
     const handleDelete = async () => {
         if (window.confirm('¿Estás seguro de que quieres eliminar este libro?')) {
             try {
-                await bookService.delete(book.id);
+                await libroService.eliminarLibro(book.id);
                 onUpdate(); // Recargar la lista de libros
             } catch (error) {
                 console.error('Error al eliminar el libro:', error);

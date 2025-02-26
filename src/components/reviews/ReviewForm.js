@@ -28,12 +28,16 @@ const ReviewForm = ({ bookId, onSubmit, onCancel, initialValues = null }) => {
 
     const formik = useFormik({
         initialValues: initialValues || {
-            calificacion: 0,
+            calificacion: 3,
             comentario: ''
         },
         validationSchema,
         onSubmit: async (values) => {
             try {
+                if (!values.calificacion) {
+                    setError('Por favor, selecciona una calificación');
+                    return;
+                }
                 if (initialValues) {
                     await reviewService.update(initialValues.id, values);
                 } else {
@@ -41,7 +45,8 @@ const ReviewForm = ({ bookId, onSubmit, onCancel, initialValues = null }) => {
                 }
                 onSubmit();
             } catch (err) {
-                setError(err.response?.data?.message || 'Error al guardar la reseña');
+                console.error('Error details:', err);
+                setError(err.response?.data?.error || 'Error al guardar la reseña');
             }
         }
     });
@@ -105,4 +110,4 @@ const ReviewForm = ({ bookId, onSubmit, onCancel, initialValues = null }) => {
     );
 };
 
-export default ReviewForm; 
+export default ReviewForm;

@@ -15,7 +15,7 @@ import {
 import { ArrowBack } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import bookService from '../../services/book.service';
+import libroService from '../../services/libroService';
 import loanService from '../../services/loan.service';
 
 const validationSchema = Yup.object({
@@ -37,7 +37,7 @@ const LoanForm = () => {
 
     const loadBook = async () => {
         try {
-            const response = await bookService.getById(bookId);
+            const response = await libroService.getLibroById(bookId);
             setBook(response);
             if (!response.disponible) {
                 setError('Este libro no está disponible para préstamo');
@@ -153,4 +153,4 @@ const LoanForm = () => {
     );
 };
 
-export default LoanForm; 
+export default LoanForm;

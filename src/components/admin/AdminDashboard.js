@@ -23,6 +23,7 @@ import AdminUsers from './AdminUsers';
 import AdminBooks from './AdminBooks';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import ImportExport from '../../screen/ImportExport';
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <Card sx={{ height: '100%' }}>
@@ -61,8 +62,8 @@ const AdminDashboard = () => {
     const loadStats = async () => {
         try {
             setLoading(true);
-            const response = await adminService.getStats();
-            setStats(response.data);
+            const statsData = await adminService.getStats();
+            setStats(statsData);
             setError('');
         } catch (err) {
             console.error('Error loading stats:', err);
@@ -143,6 +144,8 @@ const AdminDashboard = () => {
                 return <AdminUsers />;
             case 2: // Books
                 return <AdminBooks />;
+            case 3: // Import/Export
+                return <ImportExport />;
             default:
                 return null;
         }
@@ -159,6 +162,7 @@ const AdminDashboard = () => {
                     <Tab label="Dashboard" />
                     <Tab label="Usuarios" />
                     <Tab label="Libros" />
+                    <Tab label="Importar/Exportar" />
                 </Tabs>
             </Box>
 
@@ -170,7 +174,19 @@ const AdminDashboard = () => {
                         <Typography variant="h6" gutterBottom>
                             Préstamos Recientes
                         </Typography>
-                        {/* Aquí irá la tabla de préstamos recientes */}
+                        {stats?.prestamosRecientes?.map((prestamo, index) => (
+                            <Box key={index} sx={{ mb: 2 }}>
+                                <Typography variant="subtitle1">
+                                    {prestamo.tituloLibro}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Usuario: {prestamo.nombreUsuario}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Fecha: {new Date(prestamo.fechaPrestamo).toLocaleDateString()}
+                                </Typography>
+                            </Box>
+                        ))}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -178,7 +194,22 @@ const AdminDashboard = () => {
                         <Typography variant="h6" gutterBottom>
                             Últimas Reseñas
                         </Typography>
-                        {/* Aquí irá la lista de reseñas recientes */}
+                        {stats?.ultimasResenas?.map((resena, index) => (
+                            <Box key={index} sx={{ mb: 2 }}>
+                                <Typography variant="subtitle1">
+                                    {resena.tituloLibro}
+                                </Typography>
+                                <Typography variant="body2">
+                                    {resena.comentario}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Por: {resena.nombreUsuario}
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Fecha: {new Date(resena.createdAt).toLocaleDateString()}
+                                </Typography>
+                            </Box>
+                        ))}
                     </Paper>
                 </Grid>
             </Grid>

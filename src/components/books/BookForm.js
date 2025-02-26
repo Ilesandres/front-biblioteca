@@ -14,7 +14,7 @@ import {
     IconButton
 } from '@mui/material';
 import { PhotoCamera, ArrowBack } from '@mui/icons-material';
-import bookService from '../../services/book.service';
+import libroService from '../../services/libroService';
 import genreService from '../../services/genre.service';
 
 const validationSchema = Yup.object({
@@ -39,7 +39,10 @@ const validationSchema = Yup.object({
         .min(1, 'Debe haber al menos 1 copia'),
     stock: Yup.number()
         .required('El stock es requerido')
-        .min(0, 'El stock no puede ser negativo')
+        .min(0, 'El stock no puede ser negativo'),
+    editorial: Yup.string()
+        .required('La editorial es requerida')
+        .min(2, 'La editorial debe tener al menos 2 caracteres')
 });
 
 const BookForm = ({ mode = 'create', initialData = null }) => {
@@ -74,6 +77,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
             fechaPublicacion: initialData?.fechaPublicacion ? new Date(initialData.fechaPublicacion).toISOString().split('T')[0] : '',
             copias: initialData?.copias || 1,
             stock: initialData?.copias || 1,
+            editorial: initialData?.editorial || '',
             portada: null
         },
         validationSchema,
@@ -85,15 +89,12 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 const formData = new FormData();
                 
                 // Add all form fields to FormData
-                formData.append('titulo', values.titulo);
-                formData.append('autor', values.autor);
-                formData.append('isbn', values.isbn);
-                formData.append('descripcion', values.descripcion);
-                formData.append('genero', values.genero);
+                Object.keys(values).forEach(key => {
+                    if (values[key] !== null && values[key] !== undefined && key !== 'portada') {
+                        formData.append(key, values[key]);
+                    }
+                });
                 formData.append('anioPublicacion', values.fechaPublicacion);
-                formData.append('stock', values.stock);
-                formData.append('copias', values.copias);
-                formData.append('stock', values.copias); // Add stock field with same value as copias
                 
                 // Handle image upload
                 if (values.portada instanceof File) {
@@ -108,9 +109,9 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                         setLoading(false);
                         return;
                     }
-                    await bookService.create(formData);
+                    await libroService.crearLibro(formData);
                 } else if (mode === 'edit' && id) {
-                    await bookService.update(id, formData);
+                    await libroService.updateLibro(id, formData);
                 }
                 
                 setLoading(false);
@@ -138,7 +139,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
             if (mode === 'edit' && id) {
                 setLoading(true);
                 try {
-                    const data1 = await bookService.getById(id);
+                    const data1 = await libroService.getLibroById(id);
                     const data=data1;
                     formik.setValues({
                         titulo: data.titulo || '',
@@ -149,6 +150,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                         fechaPublicacion: data.anioPublicacion ? new Date(data.anioPublicacion).toISOString().split('T')[0] : '',
                         copias: data.stock || 1,
                         stock: data.stock || 1,
+                        editorial: data.editorial || '',
                         portada: null
                     });
                     if (data.portada) {
@@ -172,11 +174,17 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
     const handleImageChange = (event) => {
         const file = event.target.files[0];
         if (file) {
-            console.log('Nueva imagen detectada:', file.name);
+            console.log('Nueva imagen detectada:', {
+                name: file.name,
+                type: file.type,
+                size: file.size
+            });
             formik.setFieldValue('portada', file);
             setPreviewUrl(URL.createObjectURL(file));
         } else {
             console.log('No se seleccionó ninguna imagen');
+            formik.setFieldValue('portada', null);
+            setPreviewUrl('');
         }
     };
 
@@ -376,6 +384,18 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                             helperText={(formik.touched.copias && formik.errors.copias) || 'Indique la cantidad de copias disponibles'}
                             margin="normal"
                             InputProps={{ inputProps: { min: 1 } }}
+                        />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <TextField
+                            fullWidth
+                            name="editorial"
+                            label="Editorial"
+                            value={formik.values.editorial}
+                            onChange={formik.handleChange}
+                            error={formik.touched.editorial && Boolean(formik.errors.editorial)}
+                            helperText={(formik.touched.editorial && formik.errors.editorial) || 'Ingrese el nombre de la editorial'}
+                            margin="normal"
                         />
                     </Grid>
                     <Grid item xs={12}>

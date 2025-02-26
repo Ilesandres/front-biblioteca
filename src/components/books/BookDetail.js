@@ -20,7 +20,7 @@ import {
     Edit as EditIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
-import bookService from '../../services/book.service';
+import libroService from '../../services/libroService';
 import ReviewList from '../reviews/ReviewList';
 import ReviewForm from '../reviews/ReviewForm';
 
@@ -40,7 +40,7 @@ const BookDetail = () => {
     const loadBook = async () => {
         try {
             setLoading(true);
-            const data = await bookService.getById(id);
+            const data = await libroService.getLibroById(id);
             setBook(data);
             setError('');
         } catch (err) {

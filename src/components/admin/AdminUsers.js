@@ -37,6 +37,13 @@ const AdminUsers = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
+    const handleInputChange = (field, value) => {
+        setSelectedUser(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
     useEffect(() => {
         loadUsers();
     }, []);
@@ -145,20 +152,23 @@ const AdminUsers = () => {
                             <TextField
                                 fullWidth
                                 label="Nombre"
-                                defaultValue={selectedUser.nombre}
+                                value={selectedUser.nombre}
+                                onChange={(e) => handleInputChange('nombre', e.target.value)}
                                 margin="normal"
                             />
                             <TextField
                                 fullWidth
                                 label="Email"
-                                defaultValue={selectedUser.email}
+                                value={selectedUser.email}
+                                onChange={(e) => handleInputChange('email', e.target.value)}
                                 margin="normal"
                             />
                             <TextField
                                 select
                                 fullWidth
                                 label="Rol"
-                                defaultValue={selectedUser.rol}
+                                value={selectedUser.rol}
+                                onChange={(e) => handleInputChange('rol', e.target.value)}
                                 margin="normal"
                             >
                                 <MenuItem value="usuario">Usuario</MenuItem>
