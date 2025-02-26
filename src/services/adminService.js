@@ -45,6 +45,7 @@ const adminService = {
     getBooks: async () => {
         try {
             const response = await api.get('/admin/libros');
+            console.log(response.data);
             return response.data;
         } catch (error) {
             throw error.response?.data || error.message;

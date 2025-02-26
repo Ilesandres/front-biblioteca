@@ -25,18 +25,28 @@ const ImportExport = () => {
         books: true,
         users: true,
         loans: true,
-        reviews: true
+        reviews: true,
+        categories: true,
+        bookCategories: true
     });
     const [selectedExportEntities, setSelectedExportEntities] = useState({
         books: true,
         users: true,
         loans: true,
-        reviews: true
+        reviews: true,
+        categories: true,
+        bookCategories: true
     });
 
     const handleImport = async (event) => {
         const file = event.target.files[0];
-        if (!file) return;
+        if (!file) {
+            setMessage({
+                type: 'error',
+                text: 'No se ha proporcionado ningún archivo'
+            });
+            return;
+        }
 
         // Validate file type
         const fileType = file.name.split('.').pop().toLowerCase();
@@ -81,6 +91,7 @@ const ImportExport = () => {
                 text: 'Datos importados correctamente'
             });
         } catch (error) {
+            console.error('Import error:', error);
             const errorMessage = error.response?.data?.error || error.message;
             setMessage({
                 type: 'error',
@@ -186,7 +197,7 @@ const ImportExport = () => {
                                     checked={selectedImportEntities.books}
                                     onChange={(e) => setSelectedImportEntities(prev => ({ ...prev, books: e.target.checked }))}
                                 />}
-                                label="Libros y Categorías"
+                                label="Libros"
                             />
                             <FormControlLabel
                                 control={<Checkbox
@@ -208,6 +219,20 @@ const ImportExport = () => {
                                     onChange={(e) => setSelectedImportEntities(prev => ({ ...prev, reviews: e.target.checked }))}
                                 />}
                                 label="Reseñas"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox
+                                    checked={selectedImportEntities.categories}
+                                    onChange={(e) => setSelectedImportEntities(prev => ({ ...prev, categories: e.target.checked }))}
+                                />}
+                                label="Categorías"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox
+                                    checked={selectedImportEntities.bookCategories}
+                                    onChange={(e) => setSelectedImportEntities(prev => ({ ...prev, bookCategories: e.target.checked }))}
+                                />}
+                                label="Relaciones Libro-Categoría"
                             />
                         </FormGroup>
                         <Box sx={{ mt: 2 }}>
@@ -327,6 +352,20 @@ const ImportExport = () => {
                                     onChange={(e) => setSelectedExportEntities(prev => ({ ...prev, reviews: e.target.checked }))}
                                 />}
                                 label="Reseñas"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox
+                                    checked={selectedExportEntities.categories}
+                                    onChange={(e) => setSelectedExportEntities(prev => ({ ...prev, categories: e.target.checked }))}
+                                />}
+                                label="Categorías"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox
+                                    checked={selectedExportEntities.bookCategories}
+                                    onChange={(e) => setSelectedExportEntities(prev => ({ ...prev, bookCategories: e.target.checked }))}
+                                />}
+                                label="Relaciones Libro-Categoría"
                             />
                         </FormGroup>
                         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>

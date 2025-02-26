@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     TextField,
@@ -11,21 +11,27 @@ import {
     Paper
 } from '@mui/material';
 import { FilterList as FilterIcon, Clear as ClearIcon } from '@mui/icons-material';
-
-export const GENEROS = [
-    'Ficción',
-    'No Ficción',
-    'Fantasía',
-    'Ciencia Ficción',
-    'Romance',
-    'Misterio',
-    'Drama',
-    'Historia',
-    'Biografía',
-    'Educación'
-];
+import genreService from '../../services/genre.service';
 
 const BookFilters = ({ filters, onFilterChange, onClearFilters }) => {
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            try {
+                const data = await genreService.getAllGenres();
+                setCategories(data);
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCategories();
+    }, []);
+
     const handleChange = (event) => {
         const { name, value } = event.target;
         onFilterChange({ ...filters, [name]: value });
@@ -53,9 +59,9 @@ const BookFilters = ({ filters, onFilterChange, onClearFilters }) => {
                         onChange={handleChange}
                     >
                         <MenuItem value="">Todos</MenuItem>
-                        {GENEROS.map(genero => (
-                            <MenuItem key={genero} value={genero}>
-                                {genero}
+                        {categories.map(category => (
+                            <MenuItem key={category.id} value={category.nombre}>
+                                {category.nombre}
                             </MenuItem>
                         ))}
                     </Select>
@@ -105,4 +111,4 @@ const BookFilters = ({ filters, onFilterChange, onClearFilters }) => {
     );
 };
 
-export default BookFilters; 
+export default BookFilters;

@@ -4,10 +4,30 @@ import api from './api';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 
 const libroService = {
-    // Get all books
-    getLibros: async () => {
+    // Get all books with filters
+    getLibros: async (filters = {}) => {
         try {
-            const response = await axios.get(`${API_URL}/libros`);
+            const { search, genero, disponible, page, limit } = filters;
+            const hasFilters = search || genero || disponible || page || limit;
+            
+            // Use search endpoint if filters are present, otherwise use general endpoint
+            const endpoint = hasFilters ? '/libros/buscar' : '/libros';
+            
+            const params = new URLSearchParams();
+            if (search) params.append('search', search);
+            if (genero) params.append('genero', genero);
+            if (disponible) params.append('disponible', disponible);
+            if (page) params.append('page', page);
+            if (limit) params.append('limit', limit);
+
+            const queryString = params.toString();
+            const url = `${API_URL}${endpoint}${queryString ? `?${queryString}` : ''}`;
+            
+            const response = await axios.get(url, {
+                validateStatus: function (status) {
+                    return status < 500;
+                }
+            });
             return response.data;
         } catch (error) {
             console.error('Error fetching books:', error);
@@ -29,12 +49,7 @@ const libroService = {
     // Create new book
     crearLibro: async (libroData) => {
         try {
-            // Log FormData contents for debugging
-            console.log('FormData fields:');
-            for (let pair of libroData.entries()) {
-                console.log(pair[0], typeof pair[1], pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]);
-            }
-
+            
             const portada = libroData.get('portada');
             if (!portada || !(portada instanceof File)) {
                 throw new Error('La portada es requerida y debe ser un archivo válido');
@@ -87,12 +102,6 @@ const libroService = {
                         formData.append(key, value);
                     }
                 });
-            }
-
-            // Log FormData contents for debugging
-            console.log('FormData fields:');
-            for (let pair of formData.entries()) {
-                console.log(pair[0], typeof pair[1], pair[1] instanceof File ? `File: ${pair[1].name}` : pair[1]);
             }
 
             const response = await axios.put(`${API_URL}/libros/${id}`, formData, {
