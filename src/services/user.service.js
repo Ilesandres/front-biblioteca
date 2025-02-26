@@ -14,7 +14,15 @@ const userService = {
     getStats: async () => {
         const response = await api.get('/usuarios/stats');
         return response.data;
+    },
+
+    logout: async () => {
+        const response = await api.post('/usuarios/logout');
+        // Clear local storage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        return response.data;
     }
 };
 
-export default userService; 
+export default userService;

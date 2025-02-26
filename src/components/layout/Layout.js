@@ -19,6 +19,7 @@ import {
     Chat as ChatIcon
 } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
+import userService from '../../services/user.service';
 import NotificationList from '../notifications/NotificationList';
 
 const Layout = ({ children }) => {
@@ -35,9 +36,13 @@ const Layout = ({ children }) => {
         setAnchorEl(null);
     };
 
-    const handleLogout = () => {
-        logout();
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await userService.logout();
+            logout();
+        } catch (error) {
+            console.error('Error during logout:', error);
+        }
     };
 
     return (
