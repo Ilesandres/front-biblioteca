@@ -129,13 +129,13 @@ const AdminUsers = () => {
                                 <TableCell>{user.nombre}</TableCell>
                                 <TableCell>{user.email}</TableCell>
                                 <TableCell>{user.rol}</TableCell>
-                                <TableCell>{user.estado}</TableCell>
+                                <TableCell>{user.estado==1?'online':'offline'}</TableCell>
                                 <TableCell>
                                     <IconButton onClick={() => handleEditUser(user)}>
                                         <EditIcon />
                                     </IconButton>
                                     <IconButton onClick={() => handleToggleStatus(user.id, user.estado)}>
-                                        {user.estado === 'activo' ? <BlockIcon /> : <CheckCircleIcon />}
+                                        {user.estado === 1 ? <BlockIcon /> : <CheckCircleIcon />}
                                     </IconButton>
                                 </TableCell>
                             </TableRow>

@@ -72,7 +72,10 @@ const UserProfile = () => {
     const loadUserStats = async () => {
         try {
             const response = await userService.getStats();
-            setStats(response.data);
+            console.log(response);
+            console.log(user);
+            setStats(response);
+            
         } catch (err) {
             console.error('Error al cargar estadísticas:', err);
         }
@@ -80,7 +83,7 @@ const UserProfile = () => {
 
     const formik = useFormik({
         initialValues: {
-            nombre: user?.nombre || '',
+            nombre: user?.username || user?.nombre || '',
             email: user?.email || '',
             password: '',
             confirmPassword: ''
@@ -99,11 +102,15 @@ const UserProfile = () => {
                 }
                 const response = await userService.updateProfile(updateData);
                 // Update the user data with the response
-                setUser({
+                const updatedUser = {
                     ...user,
-                    nombre: response.data.nombre,
+                    username: response.data.nombre,
                     email: response.data.email
-                });
+                };
+                setUser(updatedUser);
+                localStorage.removeItem('user');
+                // Update localStorage
+                localStorage.setItem('user', JSON.stringify(updatedUser));
                 setEditing(false);
                 // Reset password fields
                 formik.setFieldValue('password', '');
@@ -111,6 +118,8 @@ const UserProfile = () => {
                 // Show success message
                 setError('');
             } catch (err) {
+                console.log(user);
+                console.log(err);
                 setError(err.response?.data?.error || 'Error al actualizar el perfil');
             } finally {
                 setLoading(false);
@@ -133,10 +142,10 @@ const UserProfile = () => {
                                 fontSize: '3rem'
                             }}
                         >
-                            {user?.nombre?.[0]?.toUpperCase()}
+                            {user?.username?.[0]?.toUpperCase() || user?.nombre?.[0]?.toUpperCase()}
                         </Avatar>
                         <Typography variant="h5" gutterBottom>
-                            {user?.nombre}
+                            {user?.username || user?.nombre}
                         </Typography>
                         <Typography color="text.secondary" gutterBottom>
                             {user?.email}
@@ -152,7 +161,7 @@ const UserProfile = () => {
                                 <Grid item xs={12}>
                                     <StatCard
                                         title="Libros Prestados"
-                                        value={stats.totalPrestamos}
+                                        value={stats.prestamos}
                                         icon={BookIcon}
                                         color="primary.main"
                                     />
@@ -160,7 +169,7 @@ const UserProfile = () => {
                                 <Grid item xs={12}>
                                     <StatCard
                                         title="Reseñas Escritas"
-                                        value={stats.totalResenas}
+                                        value={stats.reseñas}
                                         icon={StarIcon}
                                         color="secondary.main"
                                     />
