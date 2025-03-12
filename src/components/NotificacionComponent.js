@@ -3,7 +3,6 @@ import {
     Badge,
     IconButton,
     Menu,
-    MenuItem,
     List,
     ListItem,
     ListItemText,
@@ -12,27 +11,43 @@ import {
     Box
 } from '@mui/material';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { getNotificaciones, marcarComoLeida, marcarTodasComoLeidas } from '../services/notificacionService';
+import {
+    getNotifications as getNotificaciones,
+    markNotificationAsRead as marcarComoLeida,
+    clearAllNotifications as marcarTodasComoLeidas,
+    subscribe as suscribirNotificaciones
+} from '../services/notification.service';
 
 const NotificacionComponent = () => {
     const [notificaciones, setNotificaciones] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
+    // Cargar notificaciones desde la API
     const cargarNotificaciones = async () => {
         try {
-            const response = await getNotificaciones();
-            setNotificaciones(response.data);
+            const data = await getNotificaciones();
+            setNotificaciones(data); 
         } catch (error) {
             console.error('Error al cargar notificaciones:', error);
         }
     };
 
     useEffect(() => {
-        cargarNotificaciones();
-        // Actualizar notificaciones cada 30 segundos
+        cargarNotificaciones(); // Cargar al inicio
+
+        // Suscribirse a WebSockets para recibir nuevas notificaciones en tiempo real
+        const unsubscribe = suscribirNotificaciones((nuevaNotificacion) => {
+            setNotificaciones(prev => [...prev, nuevaNotificacion]);
+        });
+
+        // Actualizar cada 30 segundos
         const intervalo = setInterval(cargarNotificaciones, 30000);
-        return () => clearInterval(intervalo);
+
+        return () => {
+            clearInterval(intervalo);
+            unsubscribe(); // Desuscribirse del WebSocket al desmontar
+        };
     }, []);
 
     const handleClick = (event) => {
@@ -46,7 +61,7 @@ const NotificacionComponent = () => {
     const handleMarcarComoLeida = async (id) => {
         try {
             await marcarComoLeida(id);
-            cargarNotificaciones();
+            setNotificaciones(prev => prev.map(n => (n.id === id ? { ...n, leida: true } : n)));
         } catch (error) {
             console.error('Error al marcar como leída:', error);
         }
@@ -55,7 +70,7 @@ const NotificacionComponent = () => {
     const handleMarcarTodasComoLeidas = async () => {
         try {
             await marcarTodasComoLeidas();
-            cargarNotificaciones();
+            setNotificaciones(prev => prev.map(n => ({ ...n, leida: true })));
         } catch (error) {
             console.error('Error al marcar todas como leídas:', error);
         }

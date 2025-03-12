@@ -10,7 +10,7 @@ export const initializeSocket = (token) => {
         return socket;
     }
 
-    const BACKEND_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+    const BACKEND_URL = process.env.REACT_APP_API_URL1 || 'http://localhost:3005';
 
     socket = io(BACKEND_URL, {
         auth: { token },
@@ -21,25 +21,24 @@ export const initializeSocket = (token) => {
         transports: ['websocket', 'polling']
     });
 
+    // Debug listeners
     socket.on('connect', () => {
-        console.log('Conectado al servidor de WebSocket');
+        console.log('Socket conectado exitosamente');
     });
 
     socket.on('connect_error', (error) => {
-        console.error('Error de conexión WebSocket:', error.message);
+        console.error('Error de conexión socket:', error.message);
     });
 
     socket.on('disconnect', (reason) => {
-        console.log('Desconectado del servidor de WebSocket:', reason);
-        if (reason === 'io server disconnect') {
-            disconnectSocket();
-        }
+        console.log('Socket desconectado:', reason);
     });
 
-    socket.on('error_chat', (error) => {
-        console.error('Error en el chat:', error);
+    socket.on('error', (error) => {
+        console.error('Error general socket:', error);
     });
 
+    // Conectar el socket
     socket.connect();
 
     return socket;
@@ -55,11 +54,8 @@ export const getSocket = () => socket;
  */
 export const disconnectSocket = () => {
     if (socket) {
-        socket.off('connect');
-        socket.off('connect_error');
-        socket.off('disconnect');
-        socket.off('error_chat');
-        socket.off('nueva_notificacion');
+        // Remover todos los listeners antes de desconectar
+        socket.removeAllListeners();
         socket.disconnect();
         socket = null;
     }

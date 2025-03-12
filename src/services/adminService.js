@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { API_URL } from '../config';
 
 // Create axios instance with default config
 const api = axios.create({
-    baseURL: API_BASE_URL
+    baseURL: API_URL
 });
 
 // Add request interceptor to include auth token

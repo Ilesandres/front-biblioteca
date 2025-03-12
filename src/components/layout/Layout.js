@@ -89,9 +89,14 @@ const Layout = ({ children }) => {
                                         Mis Préstamos
                                     </MenuItem>
                                     {user.rol === 'admin' && (
-                                        <MenuItem onClick={() => navigate('/admin')}>
-                                            Panel Admin
-                                        </MenuItem>
+                                        <>
+                                            <MenuItem onClick={() => navigate('/soporte')}>
+                                                Soporte
+                                            </MenuItem>
+                                            <MenuItem onClick={() => navigate('/admin')}>
+                                                Panel Admin
+                                            </MenuItem>
+                                        </>
                                     )}
                                     <MenuItem onClick={handleLogout}>
                                         Cerrar Sesión

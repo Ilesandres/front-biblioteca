@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     List,
     ListItem,
@@ -21,7 +21,7 @@ import {
     Check as CheckIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useNotifications } from '../../context/NotificationContext';
+import { useSocket } from '../../context/socketContext';
 
 const getNotificationIcon = (tipo) => {
     switch (tipo) {
@@ -38,8 +38,8 @@ const getNotificationIcon = (tipo) => {
 
 const NotificationList = () => {
     const navigate = useNavigate();
-    const { notifications, unreadCount, markAsRead, clearAll } = useNotifications();
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const { notifications, unreadCount, markAsRead, clearAll } = useSocket();
+    const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -49,8 +49,8 @@ const NotificationList = () => {
         setAnchorEl(null);
     };
 
-    const handleNotificationClick = (notification) => {
-        markAsRead(notification.id);
+    const handleNotificationClick = async (notification) => {
+        await markAsRead(notification.id);
         handleClose();
 
         // Navegar según el tipo de notificación

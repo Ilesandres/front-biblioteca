@@ -1,9 +1,8 @@
 import api from './api';
-import { getSocket } from './socket.service';
 
 export const notificationService = {
     getNotifications: async () => {
- const response = await api.get('/notificaciones');
+        const response = await api.get('/notificaciones');
         return response.data.data;
     },
 
@@ -17,16 +16,38 @@ export const notificationService = {
         return response.data;
     },
 
-    subscribe: (onNewNotification) => {
-        const socket = getSocket();
-        if (socket) {
-            socket.on('nueva_notificacion', onNewNotification);
-        }
+    // Configuración de eventos WebSocket
+    setupWebSocket: (socket, handlers) => {
+        if (!socket) return;
+
+        // Escuchar nuevas notificaciones
+        socket.on('nueva_notificacion', handlers.onNewNotification);
+
+        // Escuchar actualizaciones de notificaciones
+        socket.on('notification_update', handlers.onNotificationUpdate);
+
+        // Escuchar cuando se limpian todas las notificaciones
+        socket.on('notifications_cleared', handlers.onNotificationsCleared);
+
+        // Retornar función de limpieza
         return () => {
-            if (socket) {
-                socket.off('nueva_notificacion');
-            }
+            socket.off('nueva_notificacion');
+            socket.off('notification_update');
+            socket.off('notifications_cleared');
         };
+    },
+
+    // Emitir eventos al servidor
+    emitNotificationRead: (socket, notificationId) => {
+        if (socket) {
+            socket.emit('mark_notification_read', notificationId);
+        }
+    },
+
+    emitClearAllNotifications: (socket) => {
+        if (socket) {
+            socket.emit('clear_all_notifications');
+        }
     }
 };
 

@@ -112,7 +112,6 @@ const LoanList = () => {
                         </TableHead>
                         <TableBody>
                             {loans.map((loan) => (
-                                console.log(loan.id),
                                 <TableRow key={loan.id}>
                                     <TableCell>
                                         <Box display="flex" alignItems="center" gap={2}>

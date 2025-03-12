@@ -51,6 +51,34 @@ const AdminDashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
 
+    const adminFeatures = [
+        {
+            title: 'Gestión de Libros',
+            description: 'Agregar, editar y eliminar libros del catálogo',
+            path: '/admin/books'
+        },
+        {
+            title: 'Gestión de Préstamos',
+            description: 'Ver y gestionar los préstamos activos',
+            path: '/admin/loans'
+        },
+        {
+            title: 'Gestión de Usuarios',
+            description: 'Administrar usuarios y sus roles',
+            path: '/admin/users'
+        },
+        {
+            title: 'Soporte',
+            description: 'Gestionar tickets y agentes de soporte',
+            path: '/soporte'
+        },
+        {
+            title: 'Reportes',
+            description: 'Ver estadísticas y generar reportes',
+            path: '/admin/reports'
+        }
+    ];
+
     useEffect(() => {
         if (!user || user.rol !== 'admin') {
             navigate('/login');

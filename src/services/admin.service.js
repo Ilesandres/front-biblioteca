@@ -44,6 +44,11 @@ const adminService = {
         return response.data;
     },
 
+    createUser: async (userData) => {
+        const response = await api.post('/admin/usuarios', userData);
+        return response.data;
+    },
+
     // Book management functions
     getBooks: async () => {
         const response = await api.get('/libros');

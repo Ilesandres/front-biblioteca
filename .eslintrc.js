@@ -13,14 +13,16 @@ module.exports = {
         ecmaFeatures: {
             jsx: true
         },
-        ecmaVersion: 12,
+        ecmaVersion: 'latest',
         sourceType: 'module'
     },
     plugins: ['react'],
     rules: {
-        'react/prop-types': 'off',
-        'react/react-in-jsx-scope': 'off',
-        'no-unused-vars': 'warn'
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "no-unused-vars": "off",
+        "react/prop-types": "off",
+        "react/react-in-jsx-scope": "off"
     },
     settings: {
         react: {

@@ -7,6 +7,7 @@ import ChatList from './screen/ChatList';
 import Chat from './screen/chat';
 import BookManagement from './screen/BookManagement';
 import ImportExport from './screen/ImportExport';
+import SupportPage from './components/Support/SupportPage';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -61,6 +62,11 @@ const AppRoutes = () => {
       <Route path="/admin/import-export" element={
         <PrivateRoute>
           <ImportExport />
+        </PrivateRoute>
+      } />
+      <Route path="/soporte" element={
+        <PrivateRoute>
+          <SupportPage />
         </PrivateRoute>
       } />
 

@@ -12,6 +12,7 @@ import LoanList from '../components/loans/LoanList';
 import AdminDashboard from '../components/admin/AdminDashboard';
 import ChatWindow from '../components/chat/ChatWindow';
 import UserProfile from '../components/profile/UserProfile';
+import SupportPage from '../components/Support/SupportPage';
 // Importaremos más componentes cuando los creemos
 
 const PrivateRoute = ({ children }) => {
@@ -22,7 +23,17 @@ const PrivateRoute = ({ children }) => {
 // Creamos un HOC para rutas de admin
 const AdminRoute = ({ children }) => {
     const { user } = useAuth();
-    return user?.rol === 'admin' ? <Layout>{children}</Layout> : <Navigate to="/" />;
+    return user && user.rol === 'admin' ? 
+        <Layout>{children}</Layout> : 
+        <Navigate to="/" />;
+};
+
+// Creamos un HOC para rutas de agente
+const AgentRoute = ({ children }) => {
+    const { user } = useAuth();
+    return user && (user.rol === 'admin' || user.isAgente) ? 
+        <Layout>{children}</Layout> : 
+        <Navigate to="/" />;
 };
 
 const AppRoutes = () => {
@@ -71,6 +82,21 @@ const AppRoutes = () => {
                     <AdminDashboard />
                 </AdminRoute>
             } />
+            <Route path="/soporte" element={
+                <AdminRoute>
+                    <SupportPage />
+                </AdminRoute>
+            } />
+            <Route path="/soporte/agente" element={
+                <AgentRoute>
+                    <SupportPage />
+                </AgentRoute>
+            } />
+            <Route path="/soporte/admin" element={
+                <AdminRoute>
+                    <SupportPage />
+                </AdminRoute>
+            } />
             <Route path="/chat" element={
                 <PrivateRoute>
                     <ChatWindow />
@@ -86,4 +112,4 @@ const AppRoutes = () => {
     );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

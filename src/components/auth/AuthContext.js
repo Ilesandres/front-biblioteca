@@ -64,6 +64,10 @@ export const AuthProvider = ({ children }) => {
         if (!userData || typeof userData !== 'object') return false;
         if (!userData.email || typeof userData.email !== 'string') return false;
         if (!userData.rol || typeof userData.rol !== 'string') return false;
+        // Validate agent-specific fields if present
+        if ('isAgente' in userData && typeof userData.isAgente !== 'boolean') return false;
+        if ('agenteId' in userData && userData.agenteId !== null && typeof userData.agenteId !== 'number') return false;
+        if ('estadoAgente' in userData && userData.estadoAgente !== null && typeof userData.estadoAgente !== 'string') return false;
         return true;
     };
 
@@ -185,7 +189,18 @@ export const AuthProvider = ({ children }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, updateUserData, register, loading }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            setUser, 
+            login, 
+            logout, 
+            updateUserData, 
+            register, 
+            loading,
+            isAgente: user?.isAgente || false,
+            agenteId: user?.agenteId || null,
+            estadoAgente: user?.estadoAgente || null
+        }}>
             {children}
         </AuthContext.Provider>
     );

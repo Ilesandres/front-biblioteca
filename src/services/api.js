@@ -1,10 +1,11 @@
 import axios from 'axios';
+import { API_URL } from '../config';
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3005/api'
+    baseURL: API_URL
 });
 
-// Add a request interceptor to include the auth token
+// Add a request interceptor to include the token in all requests
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');

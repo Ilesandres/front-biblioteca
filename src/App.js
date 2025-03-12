@@ -4,18 +4,20 @@ import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ToastContainer } from 'react-toastify';
 import { AuthProvider } from './components/auth/AuthContext';
-import { NotificationProvider } from './context/NotificationContext';
 import theme from './theme';
 import AppRoutes from './routes';
 import 'react-toastify/dist/ReactToastify.css';
+import { SocketProvider } from './context/socketContext';
+
 
 function App() {
+    const token = localStorage.getItem('token');
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Router>
-                <AuthProvider>
-                    <NotificationProvider>
+        <SocketProvider token={token}>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Router>
+                    <AuthProvider>
                         <ToastContainer
                             position="top-right"
                             autoClose={5000}
@@ -29,10 +31,10 @@ function App() {
                             theme="colored"
                         />
                         <AppRoutes />
-                    </NotificationProvider>
-                </AuthProvider>
-            </Router>
-        </ThemeProvider>
+                    </AuthProvider>
+                </Router>
+            </ThemeProvider>
+        </SocketProvider>
     );
 }
 
