@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Container,
     Paper,
@@ -12,7 +12,8 @@ import {
     Alert,
     Divider,
     Card,
-    CardContent
+    CardContent,
+    IconButton
 } from '@mui/material';
 import {
     Edit as EditIcon,
@@ -20,7 +21,8 @@ import {
     Cancel as CancelIcon,
     Book as BookIcon,
     Star as StarIcon,
-    History as HistoryIcon
+    History as HistoryIcon,
+    PhotoCamera as PhotoCameraIcon
 } from '@mui/icons-material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -64,10 +66,52 @@ const UserProfile = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [stats, setStats] = useState(null);
+    const [profilePhoto, setProfilePhoto] = useState(null);
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         loadUserStats();
+        loadProfilePhoto();
     }, []);
+
+    const loadProfilePhoto = async () => {
+        if (user?.id) {
+            try {
+                const response = await userService.getProfilePhoto(user.id);
+                console.log('response foto : ',response);
+                if (response && response) {
+                    setProfilePhoto(response);
+                } else {
+                    setProfilePhoto(null);
+                }
+            } catch (error) {
+                console.error('Error al cargar la foto de perfil:', error);
+                setProfilePhoto(null);
+            }
+        }
+    };
+
+    const handlePhotoUpload = async (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profilePhoto', file);
+    
+            try {
+                setLoading(true);
+                setError('');
+                await userService.uploadProfilePhoto(formData);
+                // After successful upload, fetch the updated photo
+                await loadProfilePhoto();
+            } catch (error) {
+                setError('Error al subir la foto de perfil');
+                console.error('Error al subir la foto:', error);
+                setProfilePhoto(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
 
     const loadUserStats = async () => {
         try {
@@ -132,18 +176,42 @@ const UserProfile = () => {
             <Grid container spacing={4}>
                 <Grid item xs={12} md={4}>
                     <Paper sx={{ p: 3, textAlign: 'center' }}>
-                        <Avatar
-                            sx={{
-                                width: 120,
-                                height: 120,
-                                mx: 'auto',
-                                mb: 2,
-                                bgcolor: 'primary.main',
-                                fontSize: '3rem'
-                            }}
-                        >
-                            {user?.username?.[0]?.toUpperCase() || user?.nombre?.[0]?.toUpperCase()}
-                        </Avatar>
+                        <Box position="relative" display="inline-block">
+                            <Avatar
+                                sx={{
+                                    width: 120,
+                                    height: 120,
+                                    mx: 'auto',
+                                    mb: 2,
+                                    bgcolor: 'primary.main',
+                                    fontSize: '3rem'
+                                }}
+                                src={profilePhoto}
+                            >
+                                {user?.username?.[0]?.toUpperCase() || user?.nombre?.[0]?.toUpperCase()}
+                            </Avatar>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                style={{ display: 'none' }}
+                                ref={fileInputRef}
+                                onChange={handlePhotoUpload}
+                            />
+                            <IconButton
+                                color="primary"
+                                aria-label="subir foto"
+                                component="span"
+                                onClick={() => fileInputRef.current.click()}
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 10,
+                                    right: -10,
+                                    bgcolor: 'background.paper'
+                                }}
+                            >
+                                <PhotoCameraIcon />
+                            </IconButton>
+                        </Box>
                         <Typography variant="h5" gutterBottom>
                             {user?.username || user?.nombre}
                         </Typography>
