@@ -78,7 +78,6 @@ const UserProfile = () => {
         if (user?.id) {
             try {
                 const response = await userService.getProfilePhoto(user.id);
-                console.log('response foto : ',response);
                 if (response && response) {
                     setProfilePhoto(response);
                 } else {
@@ -116,8 +115,6 @@ const UserProfile = () => {
     const loadUserStats = async () => {
         try {
             const response = await userService.getStats();
-            console.log(response);
-            console.log(user);
             setStats(response);
             
         } catch (err) {

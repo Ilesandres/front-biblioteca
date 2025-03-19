@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { initializeSocket, disconnectSocket } from '../../services/socket.service';
 import { decodeToken, validateToken } from '../../utils/tokenUtils';
 import api from '../../services/api';
+import googleAuthService from '../../services/google-auth.service';
 
 const AuthContext = createContext(null);
 
@@ -184,6 +185,50 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const registerWithGoogle = async (userData) => {
+        try {
+            const response = await googleAuthService.registerWithGoogle(userData);
+            if (response.token && response.user) {
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('user', JSON.stringify(response.user));
+                setUser(response.user);
+                initializeSocket(response.token);
+                navigate(response.user.rol === 'admin'? '/admin' : '/');
+                return { success: true, user: response.user };
+            } else {
+                return { success: false, message: 'Error al registrar con Google' };
+            }
+        } catch (error) {
+            console.error('Google Register Error:', error);
+            return {
+                success: false,
+                message: error.message || 'Error al procesar el registro con Google'
+            };
+        }
+    };
+
+    const loginWithGoogle = async (userData) => {
+        try {
+            const response = await googleAuthService.loginWithGoogle(userData);
+            if (response.token && response.user) {
+                localStorage.setItem('token', response.token);
+                localStorage.setItem('user', JSON.stringify(response.user));
+                setUser(response.user);
+                initializeSocket(response.token);
+                navigate(response.user.rol === 'admin'? '/admin' : '/');
+                return { success: true, user: response.user };
+            } else {
+                return { success: false, message: 'Error al iniciar sesión con Google' };
+            }
+        } catch (error) {
+            console.error('Google Login Error:', error);
+            return {
+                success: false,
+                message: error.message || 'Error al procesar el inicio de sesión con Google'
+            };
+        }
+    };
+
     if (loading) {
         return <div>Cargando...</div>;
     }
@@ -196,6 +241,8 @@ export const AuthProvider = ({ children }) => {
             logout, 
             updateUserData, 
             register, 
+            registerWithGoogle,
+            loginWithGoogle,
             loading,
             isAgente: user?.isAgente || false,
             agenteId: user?.agenteId || null,
