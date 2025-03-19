@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router } from 'react-router-dom';
+import DynamicFavicon from './components/DynamicFavicon';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ToastContainer } from 'react-toastify';
@@ -32,6 +33,7 @@ function App() {
                                 pauseOnHover
                                 theme="colored"
                             />
+                            <DynamicFavicon />
                             <AppRoutes />
                         </AuthProvider>
                     </Router>
