@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from './AuthContext';
+import googleAuthService from '../../services/google-auth.service';
 import {
     Container,
     Paper,
@@ -13,25 +14,60 @@ import {
     Alert
 } from '@mui/material';
 
-const validationSchema = Yup.object({
-    nombre: Yup.string()
-        .required('El nombre es requerido')
-        .min(2, 'El nombre debe tener al menos 2 caracteres'),
-    email: Yup.string()
-        .email('Email inválido')
-        .required('El email es requerido'),
-    password: Yup.string()
-        .min(6, 'La contraseña debe tener al menos 6 caracteres')
-        .required('La contraseña es requerida'),
-    confirmPassword: Yup.string()
-        .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir')
-        .required('Confirma tu contraseña')
-});
-
 const Register = () => {
+    React.useEffect(() => {
+        if (window.google) {
+            window.google.accounts.id.initialize({
+                client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+                callback: handleGoogleRegister
+            });
+            window.google.accounts.id.renderButton(
+                document.getElementById('googleRegisterButton'),
+                { theme: 'outline', size: 'large', width: '100%' }
+            );
+        }
+    }, []);
     const navigate = useNavigate();
-    const { register } = useAuth();
+    const { register,registerWithGoogle } = useAuth();
     const [error, setError] = React.useState('');
+    const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [isGoogleRegistration, setIsGoogleRegistration] = React.useState(false);
+
+    const validationSchema = React.useMemo(() => {
+        if (isGoogleRegistration) return Yup.object({});
+        return Yup.object({
+            nombre: Yup.string()
+                .required('El nombre es requerido')
+                .min(2, 'El nombre debe tener al menos 2 caracteres'),
+            email: Yup.string()
+                .email('Email inválido')
+                .required('El email es requerido'),
+            password: Yup.string()
+                .min(6, 'La contraseña debe tener al menos 6 caracteres')
+                .required('La contraseña es requerida'),
+            confirmPassword: Yup.string()
+                .oneOf([Yup.ref('password'), null], 'Las contraseñas deben coincidir')
+                .required('Confirma tu contraseña')
+        });
+    }, [isGoogleRegistration]);
+
+    const handleGoogleRegister = async (response) => {
+        try {
+            setError('');
+            setIsSubmitting(true);
+            setIsGoogleRegistration(true);
+            formik.setTouched({});
+            formik.setErrors({});
+            await registerWithGoogle(response.credential);
+            
+        } catch (error) {
+            console.error('Google Register Error:', error);
+            setError(error.message || 'Error al procesar el registro con Google');
+        } finally {
+            setIsSubmitting(false);
+            setIsGoogleRegistration(false);
+        }
+    };
 
     const formik = useFormik({
         initialValues: {
@@ -41,12 +77,22 @@ const Register = () => {
             confirmPassword: ''
         },
         validationSchema,
+        validateOnMount: false,
         onSubmit: async (values) => {
-            setError(''); // Clear previous errors
-            const { confirmPassword, ...registerData } = values;
-            const result = await register(registerData);
-            if (!result.success) {
-                setError(result.message || 'Error al registrarse');
+            try {
+                setError('');
+                setIsSubmitting(true);
+                const { confirmPassword, ...registerData } = values;
+                const result = await register(registerData);
+                if (result.success) {
+                    navigate('/');
+                } else {
+                    setError(result.message || 'Error al registrarse');
+                }
+            } catch (error) {
+                setError('Error al procesar el registro');
+            } finally {
+                setIsSubmitting(false);
             }
         }
     });
@@ -121,10 +167,15 @@ const Register = () => {
                             variant="contained"
                             fullWidth
                             type="submit"
+                            disabled={isSubmitting}
                             sx={{ mt: 3, mb: 2 }}
                         >
-                            Registrarse
+                            {isSubmitting ? 'Registrando...' : 'Registrarse'}
                         </Button>
+
+                        <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+                            <div id="googleRegisterButton"></div>
+                        </Box>
 
                         <Box sx={{ textAlign: 'center' }}>
                             <Typography variant="body2">

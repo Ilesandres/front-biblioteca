@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from './AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import {
     Container,
     Paper,
@@ -24,7 +25,7 @@ const validationSchema = Yup.object({
 
 const Login = () => {
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login,loginWithGoogle } = useAuth();
     const [error, setError] = React.useState('');
 
     const formik = useFormik({
@@ -97,6 +98,26 @@ const Login = () => {
                                 ¿No tienes una cuenta?{' '}
                                 <Link to="/register">Regístrate aquí</Link>
                             </Typography>
+                        </Box>
+
+                        <Box sx={{ mt: 2, mb: 2, display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                                clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+                                buttonText="Iniciar sesión con Google"
+                                onSuccess={async (response) => {
+                                    try {
+                                    await loginWithGoogle(response.credential); // Esperamos la respuesta
+                                    } catch (error) {
+                                    console.error("Error en loginWithGoogle:", error);
+                                    setError("Error al procesar la autenticación.");
+                                    }
+                                }}
+                                onFailure={(error) => {
+                                    console.error("Login Failed:", error);
+                                    setError("Error al iniciar sesión con Google");
+                                }}
+                                cookiePolicy={"single_host_origin"}
+                                />
                         </Box>
                     </form>
                 </Paper>

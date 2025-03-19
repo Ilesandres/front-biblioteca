@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../components/auth/AuthContext';
+import googleAuthService from '../services/google-auth.service';
 import '../index.css';
 
 const Login = () => {
@@ -27,6 +28,31 @@ const Login = () => {
             setLoading(false);
         }
     };
+
+    const handleGoogleLogin = async (response) => {
+        try {
+            const result = await googleAuthService.loginWithGoogle(response.credential);
+            if (result.token && result.user) {
+                navigate('/');
+            }
+        } catch (err) {
+            setError(err.message || 'Error al iniciar sesión con Google');
+        }
+    };
+
+    useEffect(() => {
+        // Inicializar el botón de Google
+        if (window.google) {
+            window.google.accounts.id.initialize({
+                client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+                callback: handleGoogleLogin
+            });
+            window.google.accounts.id.renderButton(
+                document.getElementById('googleLoginButton'),
+                { theme: 'outline', size: 'large', width: '100%' }
+            );
+        }
+    }, []);
 
     return (
         <div className="login-container">
@@ -65,6 +91,9 @@ const Login = () => {
                         <p>¿No tienes cuenta? <a href="/register">Regístrate</a></p>
                     </div>
                 </form>
+                <div className="google-login-container" style={{ marginTop: '20px' }}>
+                    <div id="googleLoginButton"></div>
+                </div>
             </div>
         </div>
     );
