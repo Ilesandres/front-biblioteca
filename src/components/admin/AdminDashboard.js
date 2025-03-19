@@ -16,7 +16,8 @@ import {
     Book as BookIcon,
     Person as PersonIcon,
     LocalLibrary as LibraryIcon,
-    Star as StarIcon
+    Star as StarIcon,
+    Subtitles
 } from '@mui/icons-material';
 import adminService from '../../services/admin.service';
 import AdminUsers from './AdminUsers';
@@ -24,6 +25,7 @@ import AdminBooks from './AdminBooks';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ImportExport from '../../screen/ImportExport';
+
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <Card sx={{ height: '100%' }}>
@@ -183,6 +185,9 @@ const AdminDashboard = () => {
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
             <Typography variant="h4" gutterBottom>
                 Panel de Administración
+            </Typography>
+            <Typography variant="subtitle1" gutterBottom>
+                Bienvenido {user.username}!, 
             </Typography>
 
             <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>

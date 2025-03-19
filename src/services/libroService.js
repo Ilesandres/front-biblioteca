@@ -1,7 +1,9 @@
 import axios from 'axios';
 import api from './api';
+import { Token } from '@mui/icons-material';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const token=localStorage.getItem('token');
 
 const libroService = {
     // Get all books with filters
@@ -57,7 +59,8 @@ const libroService = {
 
             const response = await axios.post(`${API_URL}/libros`, libroData, {
                 headers: { 
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization':`Bearer ${token}`
                 },
                 validateStatus: function (status) {
                     return status < 500;
@@ -106,7 +109,8 @@ const libroService = {
 
             const response = await axios.put(`${API_URL}/libros/${id}`, formData, {
                 headers: { 
-                    'Content-Type': 'multipart/form-data'
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization':`Bearer ${token}`
                 },
                 validateStatus: function (status) {
                     return status < 500; // Resolve only if status code is less than 500

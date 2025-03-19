@@ -53,14 +53,14 @@ const AppRoutes = () => {
                 </PrivateRoute>
             } />
             <Route path="/books/new" element={
-                <PrivateRoute>
+                <AdminRoute>
                     <BookForm mode="create" />
-                </PrivateRoute>
+                </AdminRoute>
             } />
             <Route path="/books/edit/:id" element={
-                <PrivateRoute>
+                <AdminRoute>
                     <BookForm mode="edit" />
-                </PrivateRoute>
+                </AdminRoute>
             } />
             <Route path="/books/:id" element={
                 <PrivateRoute>
