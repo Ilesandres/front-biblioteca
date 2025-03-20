@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import { History as HistoryIcon, Update as UpdateIcon } from '@mui/icons-material';
 import loanService from '../../services/loan.service';
+import { useGlobalNotification } from '../GlobalNotification';
 
 const getStatusColor = (estado) => {
     switch (estado) {
@@ -35,6 +36,7 @@ const LoanList = () => {
     const [loans, setLoans] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const showTipeNotification=useGlobalNotification();
 
     useEffect(() => {
         loadLoans();
@@ -58,8 +60,12 @@ const LoanList = () => {
         try {
             await loanService.return(id);
             loadLoans();
+            showTipeNotification.success('libro devuelto')
+
         } catch (err) {
             setError('Error al devolver el libro');
+            showTipeNotification.error('Error al devolver el libro')
+        
         }
     };
 
@@ -67,8 +73,10 @@ const LoanList = () => {
         try {
             await loanService.extend(id);
             loadLoans();
+            //showTipeNotification.info('operacion exitosa')
         } catch (err) {
             setError('Error al extender el préstamo');
+            showTipeNotification.error('Error al extender el préstamo')
         }
     };
 
