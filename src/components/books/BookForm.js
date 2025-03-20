@@ -11,11 +11,13 @@ import {
     MenuItem,
     Grid,
     Alert,
-    IconButton
+    IconButton,
+    Snackbar
 } from '@mui/material';
 import { PhotoCamera, ArrowBack } from '@mui/icons-material';
 import libroService from '../../services/libroService';
 import genreService from '../../services/genre.service';
+import { useNotification } from '../../context/NotificationContext';
 
 const validationSchema = Yup.object({
     titulo: Yup.string()
@@ -53,6 +55,7 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [previewUrl, setPreviewUrl] = useState('');
     const [genres, setGenres] = useState([]);
+    const { showNotification } = useNotification();
 
     useEffect(() => {
         const loadGenres = async () => {
@@ -105,7 +108,10 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
 
                 if (mode === 'create') {
                     if (!values.portada) {
-                        setError('Debes seleccionar una imagen para la portada');
+                        showNotification({
+                            message: 'Debes seleccionar una imagen para la portada',
+                            severity: 'error'
+                        });
                         setLoading(false);
                         return;
                     }
@@ -115,11 +121,20 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                 }
                 
                 setLoading(false);
+                showNotification({
+                    message: mode === 'create' ? 'Libro creado exitosamente' : 'Libro actualizado exitosamente',
+                    severity: 'success'
+                });
                 navigate('/');
             } catch (err) {
                 console.error('Error details:', err);
                 setLoading(false);
-                setError(err.response?.data?.message || 'Error al guardar el libro. Por favor, verifica los datos e intenta nuevamente.');
+                const errorMessage = err?.response?.data?.error?.message || 'Error al guardar el libro. Por favor, verifica los datos e intenta nuevamente.';
+                setError(errorMessage);
+                showNotification({
+                    message: errorMessage,
+                    severity: 'error'
+                });
             }
         },
     });
@@ -225,7 +240,8 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
         </Box>
     );
     return (
-        <Paper sx={{ p: 4, maxWidth: 800, mx: 'auto', mt: 4 }}>
+        <>
+            <Paper sx={{ p: 4, maxWidth: 800, mx: 'auto', mt: 4 }}>
             <Box display="flex" alignItems="center" mb={3}>
                 <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
                     <ArrowBack />
@@ -417,7 +433,9 @@ const BookForm = ({ mode = 'create', initialData = null }) => {
                     </Grid>
                 </Grid>
             </form>
-        </Paper>
+            </Paper>
+
+        </>
     );
 };
 

@@ -103,7 +103,6 @@ export const AuthProvider = ({ children }) => {
             
             setUser(userData);
             navigate(userData.rol === 'admin' ? '/admin' : '/');
-            initializeSocket(token);
             return { success: true };
         } catch (error) {
             console.error('Login error:', error);
@@ -169,7 +168,6 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(newUser));
             setUser(newUser);
-            initializeSocket(token);
             navigate(newUser.rol === 'admin' ? '/admin' : '/');
             return { success: true, user: newUser };
         } catch (error) {
@@ -192,7 +190,6 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response.user));
                 setUser(response.user);
-                initializeSocket(response.token);
                 navigate(response.user.rol === 'admin'? '/admin' : '/');
                 return { success: true, user: response.user };
             } else {
@@ -214,7 +211,6 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('user', JSON.stringify(response.user));
                 setUser(response.user);
-                initializeSocket(response.token);
                 navigate(response.user.rol === 'admin'? '/admin' : '/');
                 return { success: true, user: response.user };
             } else {

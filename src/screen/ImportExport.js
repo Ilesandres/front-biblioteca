@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Container,
@@ -16,6 +16,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { API_URL } from '../config';
 import axios from 'axios';
+import { useGlobalNotification } from '../components/GlobalNotification';
 
 const ImportExport = () => {
     const [importing, setImporting] = useState(false);
@@ -37,6 +38,18 @@ const ImportExport = () => {
         categories: true,
         bookCategories: true
     });
+    const notify=useGlobalNotification();
+
+    useEffect(()=>{
+        switch (message?.type) {
+            case 'error':
+                notify.warning(message?.text)
+                break;
+            case 'succes':
+                notify.success(message?.text)
+                break;
+        }
+    },[message])
 
     const handleImport = async (event) => {
         const file = event.target.files[0];
@@ -92,7 +105,7 @@ const ImportExport = () => {
             });
         } catch (error) {
             console.error('Import error:', error);
-            const errorMessage = error.response?.data?.error || error.message;
+            const errorMessage = error.response?.data?.error?.message || error.message;
             setMessage({
                 type: 'error',
                 text: `Error al importar los datos: ${errorMessage}`
