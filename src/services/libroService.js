@@ -5,6 +5,7 @@ import { Token } from '@mui/icons-material';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
 const token=localStorage.getItem('token');
 
+
 const libroService = {
     // Get all books with filters
     getLibros: async (filters = {}) => {
@@ -53,8 +54,28 @@ const libroService = {
         try {
             
             const portada = libroData.get('portada');
+            const allowedTypes=['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
             if (!portada || !(portada instanceof File)) {
                 throw new Error('La portada es requerida y debe ser un archivo válido');
+            }
+            for(let pair of libroData.entries()) {
+                console.log(pair[0] + ':', pair[1]);
+                if(pair[0]==='portada'){
+                    if(!allowedTypes.includes(portada.type)){
+                        const message='El tipo de archivo no es permitido. Solo se permiten imágenes.';
+                        const data={
+                            response:{
+                                data:{
+                                    error:{
+                                        message:message
+                                    }
+                                }
+                            }
+                        }
+                          console.log(data)
+                        throw data;
+                    }
+                }
             }
 
             const response = await axios.post(`${API_URL}/libros`, libroData, {
@@ -74,10 +95,6 @@ const libroService = {
             return response.data;
         } catch (error) {
             console.error('Error al crear libro:', error);
-            if (error.response) {
-                console.error('Respuesta del servidor:', error.response.data);
-                throw new Error(error.response.data.message || 'Error en el servidor al crear el libro');
-            }
             throw error;
         }
     },
@@ -87,6 +104,31 @@ const libroService = {
         try {
             // Verify if libroData is already a FormData instance
             const formData = libroData instanceof FormData ? libroData : new FormData();
+            console.log('actualizando libro')
+            
+            const allowedTypes= ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            console.log(!(libroData instanceof FormData))
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ':', pair[1]);
+                if(pair[0]==='portada'){
+                    console.log('portada')
+                    if(!allowedTypes.includes(pair[1].type)){
+                        const message='El tipo de archivo no es permitido. Solo se permiten imágenes.';
+                        const data={
+                            response:{
+                                data:{
+                                    error:{
+                                        message:message
+                                    }
+                                }
+                            }
+                        }
+                          console.log(data)
+                        throw data;
+                    }
+                }
+            }
+            
             
             // If libroData is not FormData, append all fields
             if (!(libroData instanceof FormData)) {
@@ -94,7 +136,14 @@ const libroService = {
                     if (value === null || value === undefined) return;
                     
                     if (key === 'portada' && value instanceof File) {
+                        if(!allowedTypes.includes(value.type)){
+                           const message='El tipo de archivo no es permitido. Solo se permiten imágenes.';
+                           console.log(message)
+                           throw new Error(message); 
+                        }
+
                         formData.append('portada', value);
+
                     } else if (key === 'genero') {
                         if (Array.isArray(value)) {
                             value.forEach(cat => formData.append('genero[]', cat));
@@ -113,6 +162,7 @@ const libroService = {
                     'Authorization':`Bearer ${token}`
                 },
                 validateStatus: function (status) {
+                    console.log('1ra validacion')
                     return status < 500; // Resolve only if status code is less than 500
                 }
             });
@@ -124,10 +174,6 @@ const libroService = {
             return response.data;
         } catch (error) {
             console.error('Error updating book:', error);
-            if (error.response) {
-                console.error('Server response:', error.response.data);
-                throw new Error(error.response.data.message || 'Error updating book');
-            }
             throw error;
         }
     },

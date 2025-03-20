@@ -80,6 +80,7 @@ const AdminUsers = () => {
     const handleToggleStatus = async (userId, currentStatus) => {
         try {
             const newStatus = currentStatus === 'activo' ? 'inactivo' : 'activo';
+            //
             await adminService.updateUserStatus(userId, newStatus);
             setSnackbar({ open: true, message: 'Estado del usuario actualizado', severity: 'success' });
             loadUsers();
