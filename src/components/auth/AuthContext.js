@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initializeSocket, disconnectSocket } from '../../services/socket.service';
 import { decodeToken, validateToken } from '../../utils/tokenUtils';
 import api from '../../services/api';
 import googleAuthService from '../../services/google-auth.service';
@@ -100,7 +99,6 @@ export const AuthProvider = ({ children }) => {
             
             localStorage.setItem('token', token);
             localStorage.setItem('user', JSON.stringify(userData));
-            
             setUser(userData);
             navigate(userData.rol === 'admin' ? '/admin' : '/');
             return { success: true };
@@ -128,7 +126,6 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        disconnectSocket();
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);

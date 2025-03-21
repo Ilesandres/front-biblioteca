@@ -3,25 +3,30 @@ import PropTypes from 'prop-types';
 import { disconnectSocket, initializeSocket } from '../services/socket.service';
 import notificationService from '../services/notification.service';
 import { useGlobalNotification } from '../components/GlobalNotification';
+import { useAuth } from '../components/auth/AuthContext';
 
 const SocketContext = createContext(null);
 
-export const SocketProvider = ({ children, token }) => {
+export const SocketProvider = ({ children }) => {
+    const { user } = useAuth();
     const [socket, setSocket] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    const notify=useGlobalNotification();
+    const notify = useGlobalNotification();
 
-    // Inicializar socket
+    // Inicializar socket cuando cambia el usuario
     useEffect(() => {
-        if (token && !socket) {
-            console.log('Inicializando socket con token');
+        const token = localStorage.getItem('token');
+        
+        if (user && token) {
+            console.log('Inicializando socket con token para usuario:', user.email);
             const newSocket = initializeSocket(token);
-            setSocket(newSocket);
-
+            
             // Configurar listeners básicos del socket
             newSocket.on('connect', () => {
                 console.log('Socket conectado exitosamente');
+                // Cargar notificaciones iniciales después de la conexión
+                loadNotifications();
             });
 
             newSocket.on('connect_error', (error) => {
@@ -31,55 +36,29 @@ export const SocketProvider = ({ children, token }) => {
             newSocket.on('disconnect', (reason) => {
                 console.log('Socket desconectado:', reason);
             });
-        }
-
-        return () => {
-            if (socket) {
-                console.log('Limpiando socket y sus listeners');
-                socket.removeAllListeners();
-                disconnectSocket();
-                setSocket(null);
-            }
-        };
-    }, [token]);
-
-    // Cargar notificaciones iniciales y configurar listeners de notificaciones
-    useEffect(() => {
-        if (socket) {
-            const loadNotifications = async () => {
-                try {
-                    const data = await notificationService.getNotifications();
-                    setNotifications(data);
-                    setUnreadCount(data.filter(n => !n.read).length);
-                } catch (error) {
-                    console.error('Error al cargar notificaciones:', error);
-                }
-            };
-
-            // Cargar notificaciones iniciales
-            loadNotifications();
 
             // Escuchar notificaciones pendientes
-            socket.on('notificaciones_pendientes', (pendingNotifications) => {
+            newSocket.on('notificaciones_pendientes', (pendingNotifications) => {
+                console.log('Notificaciones pendientes recibidas:', pendingNotifications);
                 setNotifications(pendingNotifications);
                 setUnreadCount(pendingNotifications.filter(n => !n.read).length);
-                const notification=pendingNotifications[0];
-                console.log('Nueva notificación recibida:', notification);
-                if(!notification.read){
+                const notification = pendingNotifications[0];
+                if (notification && !notification.read) {
                     notify.info(notification.mensaje);
                 }
-                
             });
 
             // Escuchar nuevas notificaciones
-            socket.on('nueva_notificacion', (notification) => {
+            newSocket.on('nueva_notificacion', (notification) => {
                 console.log('Nueva notificación recibida:', notification);
                 setNotifications(prev => [notification, ...prev]);
                 setUnreadCount(prev => prev + 1);
+                notify.info(notification.mensaje);
             });
 
             // Escuchar actualizaciones de notificaciones
-            socket.on('notification_update', (updatedNotification) => {
+            newSocket.on('notification_update', (updatedNotification) => {
+                console.log('Actualización de notificación:', updatedNotification);
                 setNotifications(prev => 
                     prev.map(notif => 
                         notif.id === updatedNotification.id 
@@ -93,20 +72,42 @@ export const SocketProvider = ({ children, token }) => {
             });
 
             // Escuchar limpieza de notificaciones
-            socket.on('notifications_cleared', () => {
+            newSocket.on('notifications_cleared', () => {
+                console.log('Todas las notificaciones marcadas como leídas');
                 setNotifications(prev => prev.map(notif => ({ ...notif, read: true })));
                 setUnreadCount(0);
             });
 
+            setSocket(newSocket);
+
             return () => {
-                console.log('Limpiando listeners de notificaciones');
-                socket.off('notificaciones_pendientes');
-                socket.off('nueva_notificacion');
-                socket.off('notification_update');
-                socket.off('notifications_cleared');
+                console.log('Limpiando socket y sus listeners');
+                if (newSocket) {
+                    newSocket.removeAllListeners();
+                    disconnectSocket();
+                }
+                setSocket(null);
             };
+        } else {
+            if (socket) {
+                console.log('Usuario no autenticado, desconectando socket');
+                socket.removeAllListeners();
+                disconnectSocket();
+                setSocket(null);
+            }
         }
-    }, [socket]);
+    }, [user]);
+
+    const loadNotifications = async () => {
+        try {
+            const data = await notificationService.getNotifications();
+            console.log('Cargando notificaciones iniciales:', data);
+            setNotifications(data);
+            setUnreadCount(data.filter(n => !n.read).length);
+        } catch (error) {
+            console.error('Error al cargar notificaciones:', error);
+        }
+    };
 
     const markAsRead = async (notificationId) => {
         try {
@@ -142,24 +143,13 @@ export const SocketProvider = ({ children, token }) => {
 };
 
 SocketProvider.propTypes = {
-    children: PropTypes.node.isRequired,
-    token: PropTypes.string
+    children: PropTypes.node.isRequired
 };
 
-SocketProvider.defaultProps = {
-    token: null
-};
-
-// Hook personalizado para usar el socket
 export const useSocket = () => {
     const context = useContext(SocketContext);
     if (!context) {
         throw new Error('useSocket debe ser usado dentro de un SocketProvider');
     }
     return context;
-};
-
-// Función para obtener el socket (reemplaza getSocket)
-export const useGetSocket = () => {
-    return useSocket();
 };

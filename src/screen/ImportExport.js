@@ -48,6 +48,8 @@ const ImportExport = () => {
             case 'succes':
                 notify.success(message?.text)
                 break;
+            default:
+                message.text!=''?notify.error(message?.text || 'error'):'';
         }
     },[message])
 
@@ -105,11 +107,12 @@ const ImportExport = () => {
             });
         } catch (error) {
             console.error('Import error:', error);
-            const errorMessage = error.response?.data?.error?.message || error.message;
+            const errorMessage = error?.response?.data?.error?.message || error.message;
             setMessage({
                 type: 'error',
                 text: `Error al importar los datos: ${errorMessage}`
             });
+            
         } finally {
             setImporting(false);
             // Reset file input
