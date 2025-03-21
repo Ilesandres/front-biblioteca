@@ -10,24 +10,22 @@ import { SocketProvider } from './context/socketContext';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { NotificationProvider } from './context/NotificationContext';
 
-
 function App() {
-    const token = localStorage.getItem('token');
     return (
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <NotificationProvider>
-                <SocketProvider token={token}>
-                    <ThemeProvider theme={theme}>
-                        <CssBaseline />
-                        <Router>
-                            <AuthProvider>
-                                    <DynamicFavicon />
-                                    <AppRoutes />
-                            </AuthProvider>
-                        </Router>
-                    </ThemeProvider>
-                </SocketProvider>
-            </NotificationProvider>
+            <ThemeProvider theme={theme}>
+                <CssBaseline />
+                <Router>
+                    <AuthProvider>
+                        <NotificationProvider>
+                            <SocketProvider>
+                                <DynamicFavicon />
+                                <AppRoutes />
+                            </SocketProvider>
+                        </NotificationProvider>
+                    </AuthProvider>
+                </Router>
+            </ThemeProvider>
         </GoogleOAuthProvider>
     );
 }
