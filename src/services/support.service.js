@@ -42,6 +42,7 @@ const supportService = {
     // Gestión de agentes
     getAgentes: async () => {
         const response = await api.get('/support/agentes');
+        console.log(response.data)
         return response.data;
     },
 
