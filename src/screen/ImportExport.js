@@ -45,7 +45,7 @@ const ImportExport = () => {
             case 'error':
                 notify.warning(message?.text)
                 break;
-            case 'succes':
+            case 'success' || 'succes':
                 notify.success(message?.text)
                 break;
             default:
