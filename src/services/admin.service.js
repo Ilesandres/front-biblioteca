@@ -1,4 +1,5 @@
 import api from './api';
+const token = localStorage.getItem('token');
 
 const adminService = {
     getStats: async () => {
@@ -11,6 +12,26 @@ const adminService = {
             prestamosRecientes: response.data.prestamosRecientes,
             ultimasResenas: response.data.ultimasResenas
         };
+    },
+
+    getReports:async()=>{
+        const response = await api.get('/files/')
+        return response.data;
+    },
+
+    getReportByUserId: async () => {
+        const response = await api.get('/files/list');
+        return response.data;
+    },
+    downloadReport: async (fileId) => {
+        const response = await api.get(`/files/download/${fileId}`, { 
+            responseType: 'arraybuffer'
+        });
+        return response.data;
+    },
+    deleteReport: async (fileId) => {
+       const response= await api.delete(`/files/${fileId}`)
+       return response.data;  
     },
 
     getOverdueLoans: async () => {

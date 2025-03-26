@@ -54,7 +54,13 @@ const TicketList = () => {
         try {
             setLoading(true);
             const data = await supportService.getMyTickets();
-            setTickets(data.tickets || []);
+            console.log(data);
+            if (data && data.tickets) {
+                setTickets(data.tickets);
+            } else {
+                setTickets([]);
+            }
+            setError('');
         } catch (error) {
             console.error('Error al cargar tickets:', error);
             setError('Error al cargar los tickets');

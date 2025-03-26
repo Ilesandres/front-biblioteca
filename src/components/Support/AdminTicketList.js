@@ -265,7 +265,7 @@ const AdminTicketList = () => {
                     agentes.map(agente => (
                         <MenuItem 
                             key={agente.id}
-                            onClick={() => handleAssignTicket(selectedTicketForMenu?.id, agente.id)}
+                            onClick={() => handleAssignTicket(selectedTicketForMenu?.id, agente.agenteId)}
                             disabled={selectedTicketForMenu?.agenteId === agente.id}
                         >
                             {agente.nombre || agente.email} {agente.rol === 'admin' ? '(Admin)' : '(Agente)'}
