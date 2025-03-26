@@ -25,6 +25,7 @@ import AdminBooks from './AdminBooks';
 import { useAuth } from '../auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import ImportExport from '../../screen/ImportExport';
+import ReportListGenerated from './reportListGenerated';
 
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
@@ -78,6 +79,11 @@ const AdminDashboard = () => {
             title: 'Reportes',
             description: 'Ver estadísticas y generar reportes',
             path: '/admin/reports'
+        },
+        {
+            title: 'Rportes generados ',
+            descripcion: ' reportes generados por admins ',
+            path:'/admin/reports/generated'
         }
     ];
 
@@ -176,6 +182,8 @@ const AdminDashboard = () => {
                 return <AdminBooks />;
             case 3: // Import/Export
                 return <ImportExport />;
+            case 4:
+                return <ReportListGenerated/>
             default:
                 return null;
         }
@@ -196,6 +204,7 @@ const AdminDashboard = () => {
                     <Tab label="Usuarios" />
                     <Tab label="Libros" />
                     <Tab label="Importar/Exportar" />
+                    <Tab label="reportes generados"/>
                 </Tabs>
             </Box>
 

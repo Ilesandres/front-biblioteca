@@ -28,6 +28,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../auth/AuthContext';
 import userService from '../../services/user.service';
+import { useGlobalNotification } from '../GlobalNotification';
 
 const validationSchema = Yup.object({
     nombre: Yup.string()
@@ -68,6 +69,7 @@ const UserProfile = () => {
     const [stats, setStats] = useState(null);
     const [profilePhoto, setProfilePhoto] = useState(null);
     const fileInputRef = useRef(null);
+    const notify=useGlobalNotification();
 
     useEffect(() => {
         loadUserStats();
@@ -84,7 +86,8 @@ const UserProfile = () => {
                     setProfilePhoto(null);
                 }
             } catch (error) {
-                console.error('Error al cargar la foto de perfil:', error);
+                const mensaje='Error al cargar la foto de perfil:'+ error;
+                console.error(mensaje);
                 setProfilePhoto(null);
             }
         }
@@ -102,10 +105,26 @@ const UserProfile = () => {
                 await userService.uploadProfilePhoto(formData);
                 // After successful upload, fetch the updated photo
                 await loadProfilePhoto();
+                notify.success('Foto de perfil subida con éxito');
+
             } catch (error) {
-                setError('Error al subir la foto de perfil');
-                console.error('Error al subir la foto:', error);
-                setProfilePhoto(null);
+                 console.error('Error al subir la foto:', error);
+                let mensaje=error?.response?.data?.error || null;
+                if(mensaje===null){
+                    mensaje=error?.response?.data?.message || null;
+                }
+                
+                if(mensaje && mensaje.includes('File too large')) {
+                    mensaje=('La foto debe ser menor a 2MB');
+                }
+                if(mensaje && mensaje.includes('No es una imagen! ')) {
+                    mensaje=('El archivo debe ser una imagen');
+                }
+
+                console.log('mensaje : '+mensaje);
+                setError('Error al subir la foto de perfil '+mensaje!=null? mensaje :  error?.response?.data?.error);
+               
+                notify.error('Error al subir la foto de perfil '+mensaje!=null? mensaje :  error?.response?.data?.error);
             } finally {
                 setLoading(false);
             }

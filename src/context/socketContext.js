@@ -39,7 +39,6 @@ export const SocketProvider = ({ children }) => {
 
             // Escuchar notificaciones pendientes
             newSocket.on('notificaciones_pendientes', (pendingNotifications) => {
-                console.log('Notificaciones pendientes recibidas:', pendingNotifications);
                 setNotifications(pendingNotifications);
                 setUnreadCount(pendingNotifications.filter(n => !n.read).length);
                 const notification = pendingNotifications[0];
@@ -101,7 +100,6 @@ export const SocketProvider = ({ children }) => {
     const loadNotifications = async () => {
         try {
             const data = await notificationService.getNotifications();
-            console.log('Cargando notificaciones iniciales:', data);
             setNotifications(data);
             setUnreadCount(data.filter(n => !n.read).length);
         } catch (error) {

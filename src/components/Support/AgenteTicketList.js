@@ -104,11 +104,12 @@ const AgenteTicketList = () => {
         try {
             setLoading(true);
             const data = await supportService.getTickets();
+            console.log(data);
             if (data && data.tickets) {
                 // Filtrar tickets basado en el rol del agente
                 const ticketsSinAsignar = data.tickets.filter(ticket => !ticket.agenteId && ticket.estado !== 'cerrado');
                 const ticketsAsignados = data.tickets.filter(ticket => 
-                    ticket.agenteId === user.id && 
+                    ticket.agenteId === user.agenteId && 
                     ticket.estado !== 'cerrado'
                 );
                 setTickets([...ticketsAsignados, ...ticketsSinAsignar]);
@@ -126,7 +127,7 @@ const AgenteTicketList = () => {
 
     const handleAssignTicket = async (ticketId) => {
         try {
-            await supportService.assignTicket(ticketId, user.id);
+            await supportService.assignTicket(ticketId, user.agenteId);
             await loadTickets(); // Recargar tickets después de la asignación
         } catch (error) {
             console.error('Error al asignar ticket:', error);
@@ -147,7 +148,7 @@ const AgenteTicketList = () => {
     );
 
     const ticketsSinAsignar = tickets.filter(ticket => !ticket.agenteId);
-    const ticketsAsignados = tickets.filter(ticket => ticket.agenteId === user.id);
+    const ticketsAsignados = tickets.filter(ticket => ticket.agenteId === user.agenteId);
 
     return (
         <Box>
