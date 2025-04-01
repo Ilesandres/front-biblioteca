@@ -13,7 +13,8 @@ const googleAuthService = {
             
             return response.data;
         } catch (error) {
-            throw new Error(error.response?.data?.message || 'Error en la autenticación con Google');
+            console.log(error)
+            throw new Error(error.response?.data?.message || error.response?.data?.error || 'Error en la autenticación con Google');
         }
     },
 

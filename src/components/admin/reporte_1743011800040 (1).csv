@@ -1,0 +1,72 @@
+
+# books
+id,titulo,autor,editorial,portada,stock,isbn,anioPublicacion,descripcion,calificacion_promedio,createdAt,updatedAt
+1,"BASICA PRIMARIA","sad","asci","https://res.cloudinary.com/dxpykzzty/image/upload/v1742918402/book-covers/rd7jtjrq7pifhmnkulak.png",2,"0123456789012",2000-04-12T05:00:00.000Z,"asd asa df adsf ad fasdf daa sd sd","0.00",2025-03-25T16:00:00.000Z,2025-03-25T16:00:00.000Z
+2,"cien años de soledad","GABRIEL GARCIA MARQUEZ","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742400567/book-covers/qqklij1rht14h4isqakv.jpg",3,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+3,"mil años de soledad 1","Gabriel Garcia Marques","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1740588890/book-covers/rrvz0qydvorhaxwwl2lb.jpg",3,"0123456789012",2018-04-11T05:00:00.000Z,"Cien años de soledad se ha convertido en la novela más emblemática de la literatura latinoamericana. Escrita por Gabriel García Márquez, esta obra se inscribió en lo que para unos es realismo mágico y para Alejo Carpentier es ""lo real maravilloso"".
+
+En un exhaustivo trabajo de imaginación, narra la historia de siete generaciones de la familia Buendía, condenados a la soledad.","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+4,"UN ANIMAL SALVAJE ","Camilo Cifuentes","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1742155668/book-covers/ochogvthej3aeltxeniw.jpg",17,"0123456789012",2005-04-11T05:00:00.000Z,"El 2 de julio de 2022, dos delincuentes se disponen a robar en una importante joyería de Ginebra. 
+Un incidente que dista mucho de ser un vulgar atraco. 
+Veinte días antes, en una lujosa urbanización a orillas del lago Lemán, Sophie Braun se prepara para celebrar su cuadragésimo cumpleaños. 
+La vida le sonríe: vive con su familia en una mansión rodeada de bosques, pero su idílico mundo está a punto de tambalearse. 
+Su marido anda enredado en sus pequeños secretos. 
+Su vecino, un policía de reputación irreprochable, se ha obsesionado con ella y la espía hasta en los detalles más íntimos. 
+Y un misterioso merodeador le hace un regalo que pone su vida en peligro. 
+Serán necesarios varios viajes al pasado, lejos de Ginebra, para hallar el origen de esta intriga diabólica de la que nadie saldrá indemne.
+","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+5,"UN ANIMAL SALVAJE 2","Camilo Cifuentes","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1740589539/book-covers/jm9l8vc4t7y1hnsjf04y.jpg",4,"0123456789012",2005-04-11T05:00:00.000Z,"El 2 de julio de 2022, dos delincuentes se disponen a robar en una importante joyería de Ginebra. 
+Un incidente que dista mucho de ser un vulgar atraco. 
+Veinte días antes, en una lujosa urbanización a orillas del lago Lemán, Sophie Braun se prepara para celebrar su cuadragésimo cumpleaños. 
+La vida le sonríe: vive con su familia en una mansión rodeada de bosques, pero su idílico mundo está a punto de tambalearse. 
+Su marido anda enredado en sus pequeños secretos. 
+Su vecino, un policía de reputación irreprochable, se ha obsesionado con ella y la espía hasta en los detalles más íntimos. 
+Y un misterioso merodeador le hace un regalo que pone su vida en peligro. 
+Serán necesarios varios viajes al pasado, lejos de Ginebra, para hallar el origen de esta intriga diabólica de la que nadie saldrá indemne.
+","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+6,"caperucita roja","walt Disney","Disney","https://res.cloudinary.com/dxpykzzty/image/upload/v1740929970/book-covers/v3sxczisqg8f94aowzmw.jpg",9,"0123456789012",2000-04-10T05:00:00.000Z,"una historia infantil interesante ","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+7,"cien años de soledad","GABRIEL GARCIA MARQUEZ","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742431073/qqklij1rht14h4isqakv_g3qfdg.jpg",3,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+8,"cien años de humanidad","GABRIEL GARCIA MARQUEZ Martinez","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742479119/book-covers/eo6rmb4m4xoeiagzsmvg.jpg",1,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T16:04:22.000Z,2025-03-25T16:04:22.000Z
+9,"cien años de soledad","GABRIEL GARCIA MARQUEZ","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742400567/book-covers/qqklij1rht14h4isqakv.jpg",3,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+10,"mil años de soledad 1","Gabriel Garcia Marques","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1740588890/book-covers/rrvz0qydvorhaxwwl2lb.jpg",3,"0123456789012",2018-04-11T05:00:00.000Z,"Cien años de soledad se ha convertido en la novela más emblemática de la literatura latinoamericana. Escrita por Gabriel García Márquez, esta obra se inscribió en lo que para unos es realismo mágico y para Alejo Carpentier es ""lo real maravilloso"".
+
+En un exhaustivo trabajo de imaginación, narra la historia de siete generaciones de la familia Buendía, condenados a la soledad.","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+11,"UN ANIMAL SALVAJE ","Camilo Cifuentes","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1742155668/book-covers/ochogvthej3aeltxeniw.jpg",17,"0123456789012",2005-04-11T05:00:00.000Z,"El 2 de julio de 2022, dos delincuentes se disponen a robar en una importante joyería de Ginebra. 
+Un incidente que dista mucho de ser un vulgar atraco. 
+Veinte días antes, en una lujosa urbanización a orillas del lago Lemán, Sophie Braun se prepara para celebrar su cuadragésimo cumpleaños. 
+La vida le sonríe: vive con su familia en una mansión rodeada de bosques, pero su idílico mundo está a punto de tambalearse. 
+Su marido anda enredado en sus pequeños secretos. 
+Su vecino, un policía de reputación irreprochable, se ha obsesionado con ella y la espía hasta en los detalles más íntimos. 
+Y un misterioso merodeador le hace un regalo que pone su vida en peligro. 
+Serán necesarios varios viajes al pasado, lejos de Ginebra, para hallar el origen de esta intriga diabólica de la que nadie saldrá indemne.
+","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+12,"UN ANIMAL SALVAJE 2","Camilo Cifuentes","funsá","https://res.cloudinary.com/dxpykzzty/image/upload/v1740589539/book-covers/jm9l8vc4t7y1hnsjf04y.jpg",4,"0123456789012",2005-04-11T05:00:00.000Z,"El 2 de julio de 2022, dos delincuentes se disponen a robar en una importante joyería de Ginebra. 
+Un incidente que dista mucho de ser un vulgar atraco. 
+Veinte días antes, en una lujosa urbanización a orillas del lago Lemán, Sophie Braun se prepara para celebrar su cuadragésimo cumpleaños. 
+La vida le sonríe: vive con su familia en una mansión rodeada de bosques, pero su idílico mundo está a punto de tambalearse. 
+Su marido anda enredado en sus pequeños secretos. 
+Su vecino, un policía de reputación irreprochable, se ha obsesionado con ella y la espía hasta en los detalles más íntimos. 
+Y un misterioso merodeador le hace un regalo que pone su vida en peligro. 
+Serán necesarios varios viajes al pasado, lejos de Ginebra, para hallar el origen de esta intriga diabólica de la que nadie saldrá indemne.
+","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+13,"caperucita roja","walt Disney","Disney","https://res.cloudinary.com/dxpykzzty/image/upload/v1740929970/book-covers/v3sxczisqg8f94aowzmw.jpg",9,"0123456789012",2000-04-10T05:00:00.000Z,"una historia infantil interesante ","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+14,"cien años de soledad","GABRIEL GARCIA MARQUEZ","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742431073/qqklij1rht14h4isqakv_g3qfdg.jpg",3,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+15,"cien años de humanidad","GABRIEL GARCIA MARQUEZ Martinez","MI PRIMER ENCARTA","https://res.cloudinary.com/dxpykzzty/image/upload/v1742479119/book-covers/eo6rmb4m4xoeiagzsmvg.jpg",1,"0123456789012",2000-04-11T05:00:00.000Z,"cien años de soledad se ha convertido en la novela mas emblematica","0.00",2025-03-25T18:46:03.000Z,2025-03-25T18:46:03.000Z
+
+# categories
+id,nombre,createdAt,updatedAt
+1,"Ficción",2025-03-25T15:50:20.000Z,2025-03-25T15:50:20.000Z
+3,"Ciencia",2025-03-25T15:50:20.000Z,2025-03-25T15:50:20.000Z
+4,"Historia",2025-03-25T15:50:20.000Z,2025-03-25T15:50:20.000Z
+7,"Arte",2025-03-25T15:50:20.000Z,2025-03-25T15:50:20.000Z
+
+# bookCategories
+id,libroId,categoriaId,createdAt
+1,1,1,2025-03-25T16:00:00.000Z
+9,2,4,2025-03-25T17:41:14.000Z
+10,4,4,2025-03-25T17:41:14.000Z
+11,5,1,2025-03-25T17:41:14.000Z
+12,6,3,2025-03-25T17:41:14.000Z
+13,7,1,2025-03-25T17:41:14.000Z
+14,8,1,2025-03-25T17:41:14.000Z
+15,3,7,2025-03-25T17:41:14.000Z

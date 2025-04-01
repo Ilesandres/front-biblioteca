@@ -1,3 +1,4 @@
+
 import api from './api';
 const token = localStorage.getItem('token');
 
@@ -29,6 +30,13 @@ const adminService = {
         });
         return response.data;
     },
+    viewReport: async (fileId) => {
+        const response = await api.get(`/files/view/${fileId}`, {
+            responseType: 'blob' // Asegura que recibimos un blob
+        });
+        return response.data; // Devolvemos el blob directamente
+    },
+    
     deleteReport: async (fileId) => {
        const response= await api.delete(`/files/${fileId}`)
        return response.data;  

@@ -8,9 +8,19 @@ import {
     Button,
     CircularProgress,
     Alert,
-    Pagination
+    Pagination,
+    Paper,
+    Card,
+    Divider,
+    Chip,
+    useTheme,
+    Fade
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { 
+    Add as AddIcon,
+    LibraryBooks as LibraryIcon,
+    SearchOff as SearchOffIcon
+} from '@mui/icons-material';
 import { useAuth } from '../auth/AuthContext';
 import libroService from '../../services/libroService';
 import BookCard from './BookCard';
@@ -34,6 +44,7 @@ const BookList = () => {
 
     const { user } = useAuth();
     const navigate = useNavigate();
+    const theme = useTheme();
 
     const loadBooks = useCallback(async () => {
         try {
@@ -85,75 +96,183 @@ const BookList = () => {
 
     if (loading && !books.length) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
-                <CircularProgress />
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh" flexDirection="column">
+                <CircularProgress size={60} thickness={4} />
+                <Typography variant="h6" color="text.secondary" mt={3}>
+                    Cargando libros...
+                </Typography>
             </Box>
         );
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
-                <Typography variant="h4" component="h1">
-                    Biblioteca
-                </Typography>
-                {user?.rol === 'admin' && (
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<AddIcon />}
-                        onClick={() => navigate('/books/new')}
+        <Box sx={{ maxWidth: '100%' }}>
+            <Card 
+                elevation={0} 
+                sx={{ 
+                    p: 3, 
+                    mb: 4, 
+                    borderRadius: 2,
+                    backgroundColor: theme.palette.primary.main,
+                    color: 'white',
+                    backgroundImage: 'linear-gradient(120deg, #1976d2, #304FFE)'
+                }}
+            >
+                <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography 
+                        variant="h4" 
+                        component="h1" 
+                        sx={{ 
+                            fontWeight: 700,
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}
                     >
-                        Agregar Libro
-                    </Button>
-                )}
-            </Box>
+                        <LibraryIcon sx={{ mr: 2, fontSize: 35 }} />
+                        Biblioteca
+                    </Typography>
+                    {user?.rol === 'admin' && (
+                        <Button
+                            variant="contained"
+                            color="info"
+                            startIcon={<AddIcon />}
+                            onClick={() => navigate('/books/new')}
+                            sx={{ 
+                                borderRadius: 2,
+                                fontWeight: 600,
+                                px: 2,
+                                py: 1,
+                                boxShadow: 3,
+                                backgroundColor: 'white',
+                                color: theme.palette.primary.main,
+                                '&:hover': {
+                                    backgroundColor: '#e0e0e0',
+                                }
+                            }}
+                        >
+                            Agregar Libro
+                        </Button>
+                    )}
+                </Box>
+                
+                <Box sx={{ mt: 2 }}>
+                    <Chip 
+                        label={`${books.length} libros disponibles`} 
+                        size="small" 
+                        sx={{ 
+                            bgcolor: 'rgba(255,255,255,0.2)', 
+                            color: 'white',
+                            fontWeight: 500
+                        }} 
+                    />
+                </Box>
+            </Card>
 
-            <BookFilters
-                filters={filters}
-                onFilterChange={handleFilterChange}
-                onClearFilters={handleClearFilters}
-            />
+            <Card elevation={2} sx={{ borderRadius: 2, mb: 4, overflow: 'visible' }}>
+                <Box p={3}>
+                    <Typography variant="h6" fontWeight={600} mb={2} color="primary">
+                        Filtros de búsqueda
+                    </Typography>
+                    <BookFilters
+                        filters={filters}
+                        onFilterChange={handleFilterChange}
+                        onClearFilters={handleClearFilters}
+                    />
+                </Box>
+            </Card>
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert 
+                    severity="error" 
+                    sx={{ 
+                        mb: 3, 
+                        borderRadius: 2,
+                        boxShadow: 1
+                    }}
+                    variant="filled"
+                >
                     {error}
                 </Alert>
             )}
 
             {loading && (
-                <Box display="flex" justifyContent="center" my={2}>
-                    <CircularProgress size={24} />
+                <Box display="flex" justifyContent="center" my={4}>
+                    <CircularProgress size={30} />
                 </Box>
             )}
 
-            <Grid container spacing={3}>
-                {books.map((book) => (
-                    <Grid item key={book.id} xs={12} sm={6} md={4} lg={3}>
-                        <BookCard book={book} onUpdate={loadBooks} />
-                    </Grid>
-                ))}
-            </Grid>
+            <Fade in={!loading || books.length > 0}>
+                <Grid container spacing={3}>
+                    {books.map((book, index) => (
+                        <Grid item key={book.id} xs={12} sm={6} md={4} lg={3}>
+                            <Fade in={true} timeout={300 + (index % 12) * 100}>
+                                <div>
+                                    <BookCard book={book} onUpdate={loadBooks} />
+                                </div>
+                            </Fade>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Fade>
 
             {books.length === 0 && !loading && (
-                <Box textAlign="center" mt={4}>
-                    <Typography variant="h6" color="textSecondary">
+                <Card 
+                    elevation={1} 
+                    sx={{ 
+                        textAlign: 'center', 
+                        py: 5, 
+                        px: 2,
+                        borderRadius: 2,
+                        backgroundColor: '#f9f9f9',
+                        border: '1px dashed #ccc'
+                    }}
+                >
+                    <SearchOffIcon sx={{ fontSize: 70, color: 'text.secondary', opacity: 0.5, mb: 2 }} />
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
                         No se encontraron libros
                     </Typography>
-                </Box>
+                    <Typography variant="body2" color="text.secondary">
+                        Intenta modificar los filtros de búsqueda o consulta más tarde
+                    </Typography>
+                    <Button 
+                        variant="outlined" 
+                        color="primary" 
+                        sx={{ mt: 3, borderRadius: 2 }}
+                        onClick={handleClearFilters}
+                    >
+                        Limpiar filtros
+                    </Button>
+                </Card>
             )}
 
             {pagination.totalPages > 1 && (
-                <Box display="flex" justifyContent="center" mt={4}>
+                <Box 
+                    display="flex" 
+                    justifyContent="center" 
+                    mt={6}
+                    mb={2}
+                    sx={{
+                        '& .MuiPagination-ul': {
+                            '& .MuiPaginationItem-root': {
+                                borderRadius: 2,
+                                fontWeight: 500
+                            }
+                        }
+                    }}
+                >
                     <Pagination
                         count={pagination.totalPages}
                         page={pagination.page}
                         onChange={handlePageChange}
                         color="primary"
+                        size="large"
+                        showFirstButton
+                        showLastButton
+                        siblingCount={1}
                     />
                 </Box>
             )}
-        </Container>
+        </Box>
     );
 };
 

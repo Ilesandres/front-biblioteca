@@ -25,7 +25,7 @@ const validationSchema = Yup.object({
 
 const Login = () => {
     const navigate = useNavigate();
-    const { login,loginWithGoogle } = useAuth();
+    const { login,loginWithGoogle, loading } = useAuth();
     const [error, setError] = React.useState('');
 
     const formik = useFormik({
@@ -106,18 +106,26 @@ const Login = () => {
                                 buttonText="Iniciar sesión con Google"
                                 onSuccess={async (response) => {
                                     try {
-                                    await loginWithGoogle(response.credential); // Esperamos la respuesta
+                                        const res = await loginWithGoogle(response.credential);
+                                        
+                                        if (!res.success) {
+                                            setError(res?.message || "Error desconocido en la autenticación");
+                                            return;
+                                        }
+                                        
+                                        // El loginWithGoogle ya maneja la navegación y el estado del usuario
+                                        console.log("Login exitoso:", res.user);
                                     } catch (error) {
-                                    console.error("Error en loginWithGoogle:", error);
-                                    setError("Error al procesar la autenticación.");
+                                        console.error("Error en loginWithGoogle:", error);
+                                        setError("Error al procesar la autenticación con Google. Por favor, inténtelo de nuevo.");
                                     }
                                 }}
                                 onFailure={(error) => {
                                     console.error("Login Failed:", error);
-                                    setError("Error al iniciar sesión con Google");
+                                    setError("No se pudo iniciar sesión con Google. Por favor, verifique su conexión e inténtelo de nuevo.");
                                 }}
                                 cookiePolicy={"single_host_origin"}
-                                />
+                            />
                         </Box>
                     </form>
                 </Paper>

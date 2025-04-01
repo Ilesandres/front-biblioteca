@@ -202,6 +202,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     const loginWithGoogle = async (userData) => {
+        console.log('iniciando con google')
         try {
             const response = await googleAuthService.loginWithGoogle(userData);
             if (response.token && response.user) {
@@ -217,7 +218,7 @@ export const AuthProvider = ({ children }) => {
             console.error('Google Login Error:', error);
             return {
                 success: false,
-                message: error.message || 'Error al procesar el inicio de sesión con Google'
+                message: error?.message || error?.error || error || 'Error al procesar el inicio de sesión con Google'
             };
         }
     };
