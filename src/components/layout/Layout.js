@@ -246,6 +246,7 @@ const Layout = ({ children }) => {
             </Box>
         </Box>
     );
+    
 };
 
 export default Layout;
