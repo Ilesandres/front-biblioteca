@@ -26,6 +26,7 @@ function App() {
                     </AuthProvider>
                 </Router>
             </ThemeProvider>
+            
         </GoogleOAuthProvider>
     );
 }
