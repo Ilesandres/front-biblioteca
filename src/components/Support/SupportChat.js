@@ -45,7 +45,7 @@ const SupportChat = ({ ticketId, onClose }) => {
         }
     }, [ticketId, socket]);
 
-    const handleNewMessage = (data) => {
+    const handleNewMessage = async (data) => {
         console.log('Nuevo mensaje recibido - Datos completos:', data);
         if (parseInt(data.ticketId) === ticketId) {
             setMessages(prevMessages => {
@@ -81,6 +81,9 @@ const SupportChat = ({ ticketId, onClose }) => {
     };
 
     const scrollToBottom = () => {
+        new Promise((resolve, reject) => {
+            //setimeOut
+        })
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
