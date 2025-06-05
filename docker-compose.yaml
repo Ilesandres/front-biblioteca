@@ -1,0 +1,75 @@
+version: '3.8'
+
+
+
+services:
+
+  frontend:
+
+    image: ilesandres/web-app-biblioteca:latest
+
+    container_name: front-biblioteca
+
+    ports:
+
+      - "3000:3000"
+
+    depends_on:
+
+      - backend
+
+    env_file:
+
+      - ./front-biblioteca/.env
+
+
+
+  backend:
+
+    image: ilesandres/nodejs-wep-api-biblioteca:v1
+
+    container_name: biblioteca-back
+
+    ports:
+
+      - "3005:3005"
+
+    depends_on:
+
+      - db
+
+    env_file:
+
+      - ./biblioteca_back/.env
+
+
+
+  db:
+
+    image: ilesandres/mysql_bd_biblioteca:v1 
+
+    container_name: my-db
+
+    restart: always
+
+    environment:
+
+      MYSQL_ROOT_PASSWORD: 1234
+
+      MYSQL_DATABASE: biblioteca
+
+    ports:
+
+      - "3307:3306"
+
+    volumes:
+
+      - ./docs/init_encrypted.sql:/docker-entrypoint-initdb.d/init.sql
+
+      - db_data:/var/lib/mysql
+
+
+
+volumes:
+
+  db_data:

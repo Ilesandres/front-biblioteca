@@ -1,0 +1,29 @@
+----------------------------------------------------------------------------------NPM EXECUTE---------------------------------------------------------------------------------------
+ 1. FRONTEND:
+    consideraciones:
+            estar en la carpeta definida como frontend o front
+               "npm start"
+2. BACKEND:
+      consideraciones:
+            estar en la carpeta definida como backend o back
+               "npm run start"
+
+3. BASE DE DATOS:
+	consideraciones:
+		en esto las unicas consideraciones es tener instalado mysql en cualquiera de sus presentaciones o en su defecto un servidor
+		de alojamiento de base de datos relacionales, pero dependiendo de esto se deberan cambiar los valores de .env para establecer la
+		conexion.
+
+--------------------------------------------------------------------------------- DOCKER -----------------------------------------------------------------------------------------------------------
+1.COMPOSE:
+	consideraciones:
+		tiene que exisster un archivo llamado dockercompose en la raiz de ambos proyetos. o en su defecto comver el existente en default carpeta de front moverlo a una 		ruta atrás, que será la raiz
+		"docker-compose up --build" o "docker-compose up -d" si se usa este ultimo para deter los servicios de coker se devera usar 
+		"docker-compose down" detendra todos los servicios iniciados desde el docker compose, sean apis, web-app o servicios de base 
+		de datos.
+
+2.Dockerfile:
+	consideraciones:
+		sea en backen o en fronten o en la base de datos será exactamente los mismo, esto solo se hace si no se ejecuta en base a un dockercompose,
+		primero se deber solo si es la primera vez que se ejecuta el comando "docker build -t nombre-que-se-le-dara" como sigueinte comando
+		que siempre se ejecutar será "docker run -t 3005:3005 name-que-se-le-dio-en-el-antterior" 
